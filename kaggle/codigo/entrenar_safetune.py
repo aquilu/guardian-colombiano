@@ -137,6 +137,93 @@ def diagnosticar_cirugia(trainer_hf_cls, pasos: int = 12) -> None:
     trainer_hf_cls._apply_global_surgery = envuelta
 
 
+def _vec_cpu(tensores) -> torch.Tensor:
+    return torch.cat([t.detach().float().reshape(-1).cpu() for t in tensores])
+
+
+def _proyectar(u: torch.Tensor, a: torch.Tensor) -> torch.Tensor:
+    """Eq. 4 de SafeGrad: proyecta u solo si u·a < 0."""
+    d = (u * a).sum()
+    return u - (d / ((a * a).sum() + 1e-12)) * a if d < 0 else u
+
+
+def corregir_amp(trainer_hf_cls) -> None:
+    """Compatibilidad de SafeGrad con AMP fp16. El HF Trainer deja en .grad el gradiente de la tarea multiplicado por
+    la escala s del GradScaler; g_align (torch.autograd.grad sobre la KL) no lleva esa escala. Se pasa s·g_align a la
+    función original de SafeTune: la proyección es invariante a la escala de g_align (grado 0) y el combinado queda
+    s·(g'_user + ρ·g_align), que el Trainer desescala una sola vez → exactamente la fórmula de SafeGrad (Eq. 3–5)."""
+    original = trainer_hf_cls._apply_global_surgery
+
+    def corregida(self, model, g_align):
+        scaler = getattr(self.accelerator, "scaler", None)
+        if scaler is not None and scaler.is_enabled():
+            s = scaler.get_scale()
+            g_align = [g * s for g in g_align]
+        return original(self, model, g_align)
+
+    trainer_hf_cls._apply_global_surgery = corregida
+
+
+def diagnosticar_cirugia(trainer_hf_cls, pasos: int = 12) -> None:
+    """Solo diagnóstico (no cambia el método; cálculos en CPU para no gastar VRAM). Antes de la cirugía: escala s,
+    normas de g_user (en .grad, escalado) y de g_align tal como llega, coseno y proyección. Comprueba la homogeneidad
+    (g'(s·u)/s == g'(u)). Después: contribución relativa ‖ρ·a‖/‖g'_user‖ en unidades desescaladas."""
+    original = trainer_hf_cls._apply_global_surgery
+
+    def envuelta(self, model, g_align):
+        if len(CIRUGIA_REGISTRO) >= pasos:
+            return original(self, model, g_align)
+        params = self._trainable_params(model)
+        u_esc = _vec_cpu([(p.grad if p.grad is not None else torch.zeros_like(p)) for p in params])
+        a_llega = _vec_cpu(g_align)
+        scaler = getattr(self.accelerator, "scaler", None)
+        s = float(scaler.get_scale()) if scaler is not None and scaler.is_enabled() else 1.0
+        u = u_esc / s
+        coseno = float((u * a_llega).sum() / (u.norm() * a_llega.norm() + 1e-12))
+        homog = float((_proyectar(u_esc, a_llega) / s - _proyectar(u, a_llega)).norm() / (_proyectar(u, a_llega).norm() + 1e-12))
+        original(self, model, g_align)
+        g_final = _vec_cpu([p.grad for p in params]) / s
+        u_proy = _proyectar(u, a_llega)
+        aporte = g_final - u_proy                     # lo que quedó del término ρ·g_align tras desescalar
+        fila = {"paso": int(self.state.global_step), "escala": s, "norma_g_user": float(u.norm()),
+                "norma_g_align_llega": float(a_llega.norm()), "coseno": coseno, "proyecta": bool((u * a_llega).sum() < 0),
+                "error_homogeneidad": homog, "norma_g_user_proyectado": float(u_proy.norm()),
+                "norma_aporte_alineacion": float(aporte.norm()),
+                "aporte_relativo": float(aporte.norm() / (u_proy.norm() + 1e-12))}
+        CIRUGIA_REGISTRO.append(fila)
+        print("\ncirugia " + json.dumps(fila), flush=True)
+
+    trainer_hf_cls._apply_global_surgery = envuelta
+
+
+LISA_REGISTRO: dict = {"estados": [], "generaciones": []}
+
+
+def diagnosticar_lisa(trainer_hf_cls, tok, ruta: str, n: int = 3, max_eventos: int = 4) -> None:
+    """Solo diagnóstico: registra el estado (alineación/tarea) de cada paso y, en cada cambio de fase, genera n
+    respuestas del guardián para ver si conserva el esquema JSON tras alternar."""
+    original = trainer_hf_cls._check_mode
+
+    def envuelta(self, inputs):
+        antes = self._lisa.status if getattr(self, "_lisa_bistate_enabled", False) else "tarea"
+        salida = original(self, inputs)
+        despues = self._lisa.status if getattr(self, "_lisa_bistate_enabled", False) else "tarea"
+        LISA_REGISTRO["estados"].append(despues)
+        if antes != despues and len(LISA_REGISTRO["generaciones"]) < max_eventos:
+            estaba = self.model.training
+            gen = probar_generacion(self.model, tok, ruta, n)
+            if estaba:
+                self.model.train()
+            LISA_REGISTRO["generaciones"].append({"paso": int(self.state.global_step), "tras_fase": antes,
+                                                  "json_valido": sum(g["json_valido"] for g in gen),
+                                                  "esquema_exacto": sum(g["esquema_exacto"] for g in gen), "n": n,
+                                                  "muestra": gen[0]["salida"][:200]})
+            print("\nlisa " + json.dumps(LISA_REGISTRO["generaciones"][-1], ensure_ascii=False), flush=True)
+        return salida
+
+    trainer_hf_cls._check_mode = envuelta
+
+
 def probar_generacion(modelo, tok, ruta: str, n: int) -> list:
     """Prueba de formato: genera n respuestas del guardián y revisa JSON y esquema exacto."""
     claves = {"veredicto", "odio_o_discriminacion", "vulgaridad", "sexual_explicito", "violencia_grafica",
@@ -226,7 +313,10 @@ def main() -> None:
     ap.add_argument("--max-muestras", type=int, default=0)
     ap.add_argument("--max-pasos", type=int, default=-1, help="prueba corta: corta el entrenamiento en N pasos")
     ap.add_argument("--probar", type=int, default=0, help="prueba corta: genera N respuestas del guardián al final")
-    ap.add_argument("--diagnostico-cirugia", action="store_true", help="solo SafeGrad: registra la cirugía de gradientes")
+    ap.add_argument("--diagnostico-cirugia", type=int, default=0, help="solo SafeGrad: registra la cirugía en N pasos")
+    ap.add_argument("--diagnostico-lisa", action="store_true", help="solo Lisa: estados por paso y generación en cada cambio")
+    ap.add_argument("--safegrad-rho", type=float, default=None, help="ρ de SafeGrad (por defecto, el de SafeTune: 1.0)")
+    ap.add_argument("--safegrad-corregir-amp", action="store_true", help="pasa s·g_align a la cirugía (fp16 con GradScaler)")
     a = ap.parse_args()
     t0 = time.time()
     registro = registrar_logs()
@@ -277,14 +367,20 @@ def main() -> None:
     if a.metodo == "plain":
         trainer = Plain(modelo, tok, **comun)
     elif a.metodo == "lisa":
+        if a.diagnostico_lisa:
+            import safetune.harden as HARD
+            diagnosticar_lisa(HARD.LisaHFTrainer, tok, f"{a.datos}/train.jsonl")
         trainer = Lisa(modelo, tok, lisa_rho=0.1, **comun)
     else:
+        import safetune.harden as HARD
         gs._load_pretrained_lm = referencia_4bit
         vigilar_kl()
+        if a.safegrad_corregir_amp:
+            corregir_amp(HARD.SafeGradHFTrainer)            # primero la corrección…
         if a.diagnostico_cirugia:
-            import safetune.harden as HARD
-            diagnosticar_cirugia(HARD.SafeGradHFTrainer)
-        trainer = SafeGrad(modelo, tok, reference_model_path=a.modelo, **comun)
+            diagnosticar_cirugia(HARD.SafeGradHFTrainer, pasos=a.diagnostico_cirugia)   # …y el diagnóstico la envuelve
+        rho = {} if a.safegrad_rho is None else {"rho": a.safegrad_rho}
+        trainer = SafeGrad(modelo, tok, reference_model_path=a.modelo, **rho, **comun)
     torch.cuda.reset_peak_memory_stats()
     tarea = tokenizar_verificado(filas, tok, 384, "tarea")
     ruta = trainer.train(tarea, out_dir=a.salida, **extra)
@@ -294,6 +390,10 @@ def main() -> None:
                "perdidas": perdidas, "perdidas_finitas": all(map(math.isfinite, perdidas)) if perdidas else None,
                "kl": KL_REGISTRO[:3] if a.metodo == "safegrad" else None,
                "cirugia": CIRUGIA_REGISTRO or None,
+               "lisa": ({"pasos_alineacion": LISA_REGISTRO["estados"].count("alignment"),
+                         "pasos_tarea": len(LISA_REGISTRO["estados"]) - LISA_REGISTRO["estados"].count("alignment"),
+                         "secuencia": "".join("A" if e == "alignment" else "T" for e in LISA_REGISTRO["estados"]),
+                         "generaciones": LISA_REGISTRO["generaciones"]} if LISA_REGISTRO["estados"] else None),
                "filas": len(filas), "filas_alineacion": len(alineacion) if alineacion is not None else None,
                **{k: v for k, v in vars(a).items() if k not in ("modelo", "datos", "salida")},
                "notas": "fp16, LoRA r16 α32, lote 2 sin acumulación, coseno, warmup 5 %, max_len 384, plantilla compacta"
