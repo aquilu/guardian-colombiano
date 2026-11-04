@@ -1,0 +1,4 @@
+{"id": "aquilu/guardian-colombiano-diag", "title": "guardian-colombiano-diag", "code_file": "diag.py", "language": "python",
+ "kernel_type": "script", "is_private": true, "enable_gpu": true, "enable_internet": true,
+ "dataset_sources": ["aquilu/guardian-colombiano-datos"], "model_sources": ["cohere-labs/tiny-aya/transformers/global/1"],
+ "competition_sources": [], "kernel_sources": []}
