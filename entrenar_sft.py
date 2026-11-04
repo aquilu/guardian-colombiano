@@ -5,6 +5,9 @@ Entrena solo sobre la respuesta del asistente (assistant_only_loss) con datos/gu
 Pensado para 6 GB de VRAM (RTX 3050): 4-bit nf4, LoRA r=16, lote 1 × acumulación 16, gradient checkpointing.
 """
 import argparse
+import os
+
+os.environ.setdefault("PYTORCH_CUDA_ALLOC_CONF", "expandable_segments:True")
 import json
 from pathlib import Path
 
@@ -44,11 +47,11 @@ def main() -> None:
         lr_scheduler_type="cosine",
         max_grad_norm=0.3,
         optim="paged_adamw_8bit",
-        max_seq_length=1024,
+        max_seq_length=704,      # la secuencia más larga del train mide 692 tokens
         max_samples=a.max_muestras,
         dataset_text_field="messages",
         split="train",
-        assistant_only_loss=True,
+        completion_only_loss=True,   # AlignTune pasa prompt/completion a TRL: pérdida solo en la respuesta
         use_peft=True,
         lora_r=16,
         lora_alpha=32,

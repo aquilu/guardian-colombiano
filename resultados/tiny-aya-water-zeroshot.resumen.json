@@ -1,0 +1,34 @@
+{
+  "modelo": "CohereLabs/tiny-aya-water",
+  "adaptador": null,
+  "prompt": "completo",
+  "datos": "datos/benchmark/test.jsonl",
+  "es": {
+    "n": 176,
+    "exactitud": 0.5397727272727273,
+    "sobre_rechazo": 0.013333333333333334,
+    "recall_rechazo": 0.20833333333333334,
+    "se_cuela": 0.6237623762376238,
+    "json_valido": 1.0,
+    "esquema_exacto": 0.9886363636363636
+  },
+  "en": {
+    "n": 176,
+    "exactitud": 0.5511363636363636,
+    "sobre_rechazo": 0.0,
+    "recall_rechazo": 0.2708333333333333,
+    "se_cuela": 0.5445544554455446,
+    "json_valido": 1.0,
+    "esquema_exacto": 1.0
+  },
+  "rendimiento": {
+    "segundos": 916.4,
+    "por_postit_s": 2.603,
+    "tokens_entrada": 350879,
+    "tokens_salida": 52320,
+    "tokens_salida_por_s": 57.1,
+    "gpu": "NVIDIA GeForce RTX 3050",
+    "cuantizacion": "nf4 4-bit",
+    "lote": 8
+  }
+}
