@@ -100,9 +100,14 @@ def main() -> None:
     ap.add_argument("--lote", type=int, default=8)
     ap.add_argument("--max-nuevos", type=int, default=220)
     ap.add_argument("--limite", type=int, default=0)
+    ap.add_argument("--plantilla", choices=["oficial", "compacta"], default=None,
+                    help="por defecto: compacta si hay --adaptador, oficial si no")
     a = ap.parse_args()
 
     tok = AutoTokenizer.from_pretrained(a.modelo)
+    if (a.plantilla or ("compacta" if a.adaptador else "oficial")) == "compacta":
+        from plantilla import compacta
+        compacta(tok)
     tok.padding_side = "left"
     if tok.pad_token is None:
         tok.pad_token = tok.eos_token
