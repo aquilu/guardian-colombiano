@@ -2,7 +2,7 @@
 import glob, json, os, shutil, subprocess, sys
 
 EXTRA = ["--max-pasos", "20", "--probar", "3"]   # prueba corta
-METODOS = {"lisa": 1, "safegrad": 0}   # {metodo: gpu}
+METODOS = {"safegrad": 0, "lisa": 1, "plain": 1}   # {metodo: gpu}; en la misma GPU van en secuencia
 raiz = next(iter(glob.glob("/kaggle/input/**/guardian-colombiano-datos", recursive=True)))
 modelo = os.path.dirname(sorted(glob.glob("/kaggle/input/**/tiny-aya/transformers/global/**/config.json", recursive=True), key=len)[0])
 fuente = os.path.dirname(sorted(glob.glob(f"{raiz}/**/pyproject.toml", recursive=True), key=len)[0])
@@ -14,14 +14,27 @@ print(r.stdout[-1500:], r.stderr[-3000:]); r.check_returncode()
 subprocess.run([sys.executable, "-m", "pip", "uninstall", "-y", "-q", "torchao"], check=False)  # peft exige >0.16
 print("modelo:", modelo, "| datos:", raiz)
 
-procesos = {}
+import threading
+porgpu = {}
 for metodo, gpu in METODOS.items():
-    env = {**os.environ, "CUDA_VISIBLE_DEVICES": str(gpu), "PYTHONUNBUFFERED": "1"}
-    log = open(f"/kaggle/working/log-{metodo}.txt", "w")
-    procesos[metodo] = (subprocess.Popen([sys.executable, "/kaggle/working/codigo/entrenar_safetune.py", "--metodo", metodo,
-                                          "--modelo", modelo, "--datos", raiz,
-                                          "--salida", f"/kaggle/working/prueba-{metodo}"] + EXTRA,
-                                         env=env, stdout=log, stderr=subprocess.STDOUT), log)
+    porgpu.setdefault(gpu, []).append(metodo)
+codigos = {}
+
+
+def cadena(gpu, metodos):
+    for metodo in metodos:
+        env = {**os.environ, "CUDA_VISIBLE_DEVICES": str(gpu), "PYTHONUNBUFFERED": "1"}
+        with open(f"/kaggle/working/log-{metodo}.txt", "w") as log:
+            p = subprocess.run([sys.executable, "/kaggle/working/codigo/entrenar_safetune.py", "--metodo", metodo,
+                                "--modelo", modelo, "--datos", raiz, "--salida", f"/kaggle/working/prueba-{metodo}"] + EXTRA,
+                               env=env, stdout=log, stderr=subprocess.STDOUT)
+        codigos[metodo] = p.returncode
+
+
+hilos = [threading.Thread(target=cadena, args=(g, ms)) for g, ms in porgpu.items()]
+[h.start() for h in hilos]
+[h.join() for h in hilos]
+procesos = {m: (type("P", (), {"returncode": c, "wait": lambda self: None})(), open(os.devnull, "w")) for m, c in codigos.items()}
 fallos = []
 for metodo, (p, log) in procesos.items():
     p.wait(); log.close()

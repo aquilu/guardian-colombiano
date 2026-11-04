@@ -14,6 +14,11 @@ Alineación (Lisa y SafeGrad, idéntica para ambos): `alineacion.jsonl` tokeniza
 solo en la respuesta) → 349 filas; excluidas por pasar de 384 tokens: `alin-182-0b52b888`, `alin-186-d4e2190b`,
 `alin-187-196db2c4` (las tres son pedidos límite de ficción con respuestas largas, no rechazos).
 
+Corrección común (desde la ejecución #12): `tok.padding_side = "right"` explícito. SafeTune
+(`_tokenize_qa_rows`) enmascara las primeras `prompt_len` posiciones y supone relleno a la derecha; el tokenizer de
+Kaggle Models con transformers 5.20 rellena a la izquierda por defecto. La verificación `tokenizar_verificado`
+rechaza cualquier fila con prompt o relleno supervisado o sin cierre.
+
 Diferencias propias de cada método (no controlables, se declaran como limitación causal):
 - SafeGrad usa una referencia congelada en 4-bit nf4 (el brazo entrenable va en fp16) para que quepan dos copias.
 - La KL de SafeGrad (implementación de SafeTune) cubre todas las posiciones, incluido el relleno; no usa etiquetas.
@@ -31,6 +36,7 @@ Diferencias propias de cada método (no controlables, se declaran como limitaci�
 | 6 | 04-nov | Kaggle | SafeGrad v4–v6 | error antes de entrenar | No | Build desde `/kaggle/input` (solo lectura), `torchao` 0.10 incompatible con peft, y SafeGrad rechaza `gradient_accumulation_steps>1`. |
 | 7 | 04-nov | Kaggle T4 | SafeGrad v7: lote 4×1, lr 1e-4, max_len 704, plantilla oficial | OOM en el paso 0/414 | No | **Se cambiaron a la vez el lote (1×16→4×1) y el lr (2e-4→1e-4)**: no se atribuye el fallo a ninguna de las dos. |
 | 8 | 04-nov | Kaggle T4 | SafeGrad v8: config común, plantilla compacta, max_len 384 | **cancelado** (CANCEL_ACKNOWLEDGED) | No | Usaba `build_safety_dataset`: pérdida también sobre el pedido dañino y 3 filas truncadas sin cierre. |
-| 9 | 04-nov | Kaggle T4 #0 | PlainSFT (kernel `plain-lisa` v1) | en curso | **Sí, si pasa la validación funcional** | Ruta de tarea validada en las 1.654 filas; no usa alineación, así que la corrección no le afecta. |
+| 9 | 04-nov | Kaggle T4 #0 | PlainSFT (kernel `plain-lisa` v1) | en curso | **No — inválido** | La validación de la ruta de tarea se hizo en monterrey (transformers 5.22, relleno a la derecha). En Kaggle (transformers 5.20, tokenizer de Kaggle Models sin `padding_side`) el relleno va a la izquierda; SafeTune enmascara las primeras `prompt_len` posiciones y dejaba gran parte del prompt dentro de la pérdida. |
 | 10 | 04-nov | Kaggle T4 #1 | Lisa (kernel `plain-lisa` v1) | en curso | **No — inválido** | Mismo defecto de alineación que #8. No se puede detener sin cortar PlainSFT; se deja terminar y se descarta. |
-| 11 | 04-nov | Kaggle | Pruebas cortas Lisa y SafeGrad (20 pasos, alineación corregida, 3 generaciones) | en curso | prueba | Valida memoria máxima, pérdida finita, máscaras, cierre y, en SafeGrad, forma/dispositivo/dtype de la KL. |
+| 11 | 04-nov | Kaggle | Pruebas cortas Lisa y SafeGrad v1 | error controlado | prueba | La verificación de máscaras detuvo ambas antes de entrenar: prompt dentro de la pérdida por el relleno a la izquierda (ver #9). |
+| 12 | 04-nov | Kaggle | Pruebas cortas v2: SafeGrad (T4 #0), Lisa → PlainSFT (T4 #1); 20 pasos, 3 generaciones | en curso | prueba | `padding_side="right"` forzado; tarea y alineación pretokenizadas y verificadas fila por fila (prompt y relleno en -100, cierre supervisado). |

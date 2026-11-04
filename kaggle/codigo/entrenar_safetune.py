@@ -66,12 +66,26 @@ def alineacion_corregida(ruta: str, tok, max_len: int):
                               "categoria": x.get("categoria"), "idioma": x.get("idioma")})
             continue
         filas.append({"messages": msgs})
+    return tokenizar_verificado(filas, tok, max_len, "alineación"), excluidas
+
+
+def tokenizar_verificado(filas: list, tok, max_len: int, nombre: str):
+    """tokenize_dataset (ruta de SafeTune) + comprobación fila por fila: relleno a la derecha, prompt y relleno en
+    -100, respuesta supervisada que cierra con <|END_OF_TURN_TOKEN|>. Falla si alguna fila no cumple."""
+    from safetune.runner.utils.data_utils import tokenize_dataset
+    assert tok.padding_side == "right", tok.padding_side
     ds = tokenize_dataset(Dataset.from_list(filas), tok, max_len=max_len)
-    # comprobación: prompt enmascarado y respuesta cerrada en todas las filas
+    sup_total = 0
     for e in ds:
-        sup = tok.decode([t for t, y in zip(e["input_ids"], e["labels"]) if y != -100])
-        assert "<|USER_TOKEN|>" not in sup and sup.rstrip().endswith("<|END_OF_TURN_TOKEN|>"), sup[:200]
-    return ds, excluidas
+        ids, lab, att = e["input_ids"], e["labels"], e["attention_mask"]
+        assert att[0] == 1, "relleno a la izquierda"
+        sup = tok.decode([t for t, y in zip(ids, lab) if y != -100])
+        assert "<|USER_TOKEN|>" not in sup and "<|SYSTEM_TOKEN|>" not in sup, f"prompt en la pérdida: {sup[:160]}"
+        assert sup.rstrip().endswith("<|END_OF_TURN_TOKEN|>"), f"sin cierre: {sup[-160:]}"
+        assert all(y == -100 for y, m in zip(lab, att) if m == 0), "relleno supervisado"
+        sup_total += sum(y != -100 for y in lab)
+    print(f"[{nombre}] {len(ds)} filas verificadas · tokens supervisados promedio {sup_total / len(ds):.1f}")
+    return ds
 
 
 def vigilar_kl() -> None:
@@ -188,6 +202,9 @@ def main() -> None:
     tok = compacta(AutoTokenizer.from_pretrained(a.modelo))
     if tok.pad_token is None:
         tok.pad_token = tok.eos_token
+    # SafeTune enmascara las primeras prompt_len posiciones: solo es correcto con relleno a la derecha. El tokenizer
+    # de Kaggle Models (transformers 5.20) rellena a la izquierda por defecto y dejaba el prompt dentro de la pérdida.
+    tok.padding_side = "right"
     modelo = AutoModelForCausalLM.from_pretrained(a.modelo, device_map="cuda:0", dtype=torch.float16)
     modelo.gradient_checkpointing_enable(gradient_checkpointing_kwargs={"use_reentrant": False})
     modelo.enable_input_require_grads()
@@ -218,7 +235,8 @@ def main() -> None:
         vigilar_kl()
         trainer = SafeGrad(modelo, tok, reference_model_path=a.modelo, **comun)
     torch.cuda.reset_peak_memory_stats()
-    ruta = trainer.train(Dataset.from_list(filas), out_dir=a.salida, **extra)
+    tarea = tokenizar_verificado(filas, tok, 384, "tarea")
+    ruta = trainer.train(tarea, out_dir=a.salida, **extra)
     perdidas = [r["loss"] for r in registro if "loss" in r]
     resumen = {"metodo": a.metodo, "gpu": torch.cuda.get_device_name(0), "minutos": round((time.time() - t0) / 60, 1),
                "memoria_max_gb": round(torch.cuda.max_memory_allocated() / 2**30, 2),

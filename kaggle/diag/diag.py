@@ -1,13 +1,9 @@
-import os, importlib, subprocess, sys
-for raiz, dirs, files in os.walk("/kaggle/input"):
-    nivel = raiz.count(os.sep) - 2
-    if nivel <= 4:
-        print(raiz, "|", files[:6], "| dirs:", dirs[:6])
-for m in ["torch", "transformers", "peft", "bitsandbytes", "trl", "datasets", "accelerate", "safetensors", "torchao"]:
-    try:
-        print(m, importlib.import_module(m).__version__)
-    except Exception as e:
-        print(m, "NO:", type(e).__name__, str(e)[:80])
-import torch
-print("cuda", torch.cuda.is_available(), torch.cuda.device_count(), [torch.cuda.get_device_name(i) for i in range(torch.cuda.device_count())])
-print(subprocess.run(["nvidia-smi", "--query-gpu=name,memory.total", "--format=csv"], capture_output=True, text=True).stdout)
+import glob, os, json, transformers
+from transformers import AutoTokenizer
+m = os.path.dirname(sorted(glob.glob("/kaggle/input/**/tiny-aya/transformers/global/**/config.json", recursive=True), key=len)[0])
+t = AutoTokenizer.from_pretrained(m)
+print("transformers", transformers.__version__, "| modelo", m)
+print("padding_side:", t.padding_side, "| truncation_side:", t.truncation_side, "| pad:", t.pad_token)
+cfg = json.load(open(os.path.join(m, "tokenizer_config.json")))
+print("tokenizer_config padding_side:", cfg.get("padding_side"), "| claves:", sorted(k for k in cfg if "side" in k or "pad" in k))
+print(t("hola", padding="max_length", max_length=6)["input_ids"])
