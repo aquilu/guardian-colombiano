@@ -1,0 +1,23 @@
+name: guardian_colombiano_curado
+version: "1.0.0"
+readers:
+  - type: jsonl
+    path: /home/halbarba/proyectos/lexsi/guardian/curado/entrada_alpaca.jsonl
+    format: alpaca
+normalizers:
+  - type: text_cleaner
+    transforms:            # strip_html apagado: las etiquetas falsas son parte de las trampas de inyección
+      strip_html: false
+      normalise_unicode: true
+      fix_encoding_artifacts: true
+      collapse_whitespace: true
+      remove_control_chars: true
+  - type: exact_dedup
+  - type: minhash_dedup
+    minhash_threshold: 0.8
+  - type: embedding_dedup
+    embedding_model: sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2
+    embedding_threshold: 0.88
+    embedding_index_dir: /home/halbarba/proyectos/lexsi/guardian/curado/indice
+exporters:
+  - type: alpaca
