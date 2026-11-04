@@ -107,6 +107,36 @@ def vigilar_kl() -> None:
     sg.safegrad_kl_alignment_loss = kl
 
 
+CIRUGIA_REGISTRO: list = []
+
+
+def diagnosticar_cirugia(trainer_hf_cls, pasos: int = 12) -> None:
+    """Solo diagnóstico (no cambia el método): antes de cada cirugía registra la escala del GradScaler, las normas de
+    g_user (tal como está en .grad) y de g_align, su producto y si hay proyección; y después, la norma de g_final."""
+    original = trainer_hf_cls._apply_global_surgery
+
+    def envuelta(self, model, g_align):
+        if len(CIRUGIA_REGISTRO) < pasos:
+            params = self._trainable_params(model)
+            gu = torch.cat([(p.grad if p.grad is not None else torch.zeros_like(p)).float().reshape(-1) for p in params])
+            ga = torch.cat([g.float().reshape(-1).to(gu.device) for g in g_align])
+            scaler = getattr(self.accelerator, "scaler", None)
+            fila = {"paso": int(self.state.global_step), "escala": float(scaler.get_scale()) if scaler is not None else None,
+                    "norma_g_user_en_grad": float(gu.norm()), "norma_g_align": float(ga.norm()),
+                    "producto": float((gu * ga).sum()), "proyecta": bool((gu * ga).sum() < 0)}
+        original(self, model, g_align)
+        if len(CIRUGIA_REGISTRO) < pasos:
+            gf = torch.cat([p.grad.float().reshape(-1) for p in self._trainable_params(model)])
+            fila["norma_g_final"] = float(gf.norm())
+            if fila["escala"]:
+                fila["norma_g_user_desescalada"] = fila["norma_g_user_en_grad"] / fila["escala"]
+                fila["norma_g_align_tras_desescalar"] = fila["norma_g_align"] / fila["escala"]
+            CIRUGIA_REGISTRO.append(fila)
+            print("cirugia", json.dumps(fila), flush=True)
+
+    trainer_hf_cls._apply_global_surgery = envuelta
+
+
 def probar_generacion(modelo, tok, ruta: str, n: int) -> list:
     """Prueba de formato: genera n respuestas del guardián y revisa JSON y esquema exacto."""
     claves = {"veredicto", "odio_o_discriminacion", "vulgaridad", "sexual_explicito", "violencia_grafica",
@@ -196,6 +226,7 @@ def main() -> None:
     ap.add_argument("--max-muestras", type=int, default=0)
     ap.add_argument("--max-pasos", type=int, default=-1, help="prueba corta: corta el entrenamiento en N pasos")
     ap.add_argument("--probar", type=int, default=0, help="prueba corta: genera N respuestas del guardián al final")
+    ap.add_argument("--diagnostico-cirugia", action="store_true", help="solo SafeGrad: registra la cirugía de gradientes")
     a = ap.parse_args()
     t0 = time.time()
     registro = registrar_logs()
@@ -250,6 +281,9 @@ def main() -> None:
     else:
         gs._load_pretrained_lm = referencia_4bit
         vigilar_kl()
+        if a.diagnostico_cirugia:
+            import safetune.harden as HARD
+            diagnosticar_cirugia(HARD.SafeGradHFTrainer)
         trainer = SafeGrad(modelo, tok, reference_model_path=a.modelo, **comun)
     torch.cuda.reset_peak_memory_stats()
     tarea = tokenizar_verificado(filas, tok, 384, "tarea")
@@ -259,6 +293,7 @@ def main() -> None:
                "memoria_max_gb": round(torch.cuda.max_memory_allocated() / 2**30, 2),
                "perdidas": perdidas, "perdidas_finitas": all(map(math.isfinite, perdidas)) if perdidas else None,
                "kl": KL_REGISTRO[:3] if a.metodo == "safegrad" else None,
+               "cirugia": CIRUGIA_REGISTRO or None,
                "filas": len(filas), "filas_alineacion": len(alineacion) if alineacion is not None else None,
                **{k: v for k, v in vars(a).items() if k not in ("modelo", "datos", "salida")},
                "notas": "fp16, LoRA r16 α32, lote 2 sin acumulación, coseno, warmup 5 %, max_len 384, plantilla compacta"
