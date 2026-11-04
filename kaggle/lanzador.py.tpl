@@ -18,7 +18,7 @@ for metodo, gpu in METODOS.items():
     env = {**os.environ, "CUDA_VISIBLE_DEVICES": str(gpu), "PYTHONUNBUFFERED": "1"}
     log = open(f"/kaggle/working/log-{metodo}.txt", "w")
     procesos[metodo] = (subprocess.Popen([sys.executable, "/kaggle/working/codigo/entrenar_safetune.py", "--metodo", metodo,
-                                          "--modelo", modelo, "--datos", raiz,
+                                          "--modelo", modelo, "--hf-dir", f"{raiz}/hf_tiny_aya", "--datos", raiz,
                                           "--salida", f"/kaggle/working/guardian-{metodo}-global"],
                                          env=env, stdout=log, stderr=subprocess.STDOUT), log)
 fallos = []

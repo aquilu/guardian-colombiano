@@ -19,10 +19,20 @@ Corrección común (desde la ejecución #12): `tok.padding_side = "right"` expl�
 Kaggle Models con transformers 5.20 rellena a la izquierda por defecto. La verificación `tokenizar_verificado`
 rechaza cualquier fila con prompt o relleno supervisado o sin cierre.
 
+Tokenizer y config comunes (desde la ejecución #14): los de HF en la revisión `af89d21` (`hf_tiny_aya/` en el
+dataset). Los pesos de Kaggle Models son idénticos byte a byte a los de HF (SHA-256 de ambos `.safetensors`), pero su
+`tokenizer_config.json` declara `CohereTokenizerFast`, que con transformers 5.20 segmenta distinto (293 frente a
+276 tokens en la misma fila: dígitos, guiones y saltos de línea en más piezas) y rellena a la izquierda; y su
+`config.json` trae `max_position_embeddings=500000` (HF: 8192). El script se niega a entrenar si los IDs de la primera
+fila de la tarea y de la alineación no son idénticos a `tokens_esperados.json`.
+
 Diferencias propias de cada método (no controlables, se declaran como limitación causal):
 - SafeGrad usa una referencia congelada en 4-bit nf4 (el brazo entrenable va en fp16) para que quepan dos copias.
 - La KL de SafeGrad (implementación de SafeTune) cubre todas las posiciones, incluido el relleno; no usa etiquetas.
-- Lisa alterna fases de 20 pasos de alineación y 20 de tarea (valores del runner de SafeTune).
+- Lisa alterna fases de 20 pasos de alineación y 20 de tarea (valores del runner de SafeTune): con el mismo total de
+  pasos dedica ~la mitad a la tarea. Una peor exactitud del guardián en Lisa puede deberse a eso y no al endurecimiento.
+- SafeGrad: en la prueba corta, logits del estudiante en float32 y de la referencia en float16 (misma forma
+  [2, 384, 262144], mismo dispositivo); KL del orden de 240–260 por la reducción `batchmean` sobre todas las posiciones.
 
 ## Ejecuciones
 
@@ -40,3 +50,7 @@ Diferencias propias de cada método (no controlables, se declaran como limitaci�
 | 10 | 04-nov | Kaggle T4 #1 | Lisa (kernel `plain-lisa` v1) | en curso | **No — inválido** | Mismo defecto de alineación que #8. No se puede detener sin cortar PlainSFT; se deja terminar y se descarta. |
 | 11 | 04-nov | Kaggle | Pruebas cortas Lisa y SafeGrad v1 | error controlado | prueba | La verificación de máscaras detuvo ambas antes de entrenar: prompt dentro de la pérdida por el relleno a la izquierda (ver #9). |
 | 12 | 04-nov | Kaggle | Pruebas cortas v2: SafeGrad (T4 #0), Lisa → PlainSFT (T4 #1); 20 pasos, 3 generaciones | en curso | prueba | `padding_side="right"` forzado; tarea y alineación pretokenizadas y verificadas fila por fila (prompt y relleno en -100, cierre supervisado). |
+| 13 | 04-nov | Kaggle | Pruebas cortas v2 (20 pasos): SafeGrad, Lisa, PlainSFT | completó | prueba | Máscaras OK en los tres; pérdidas finitas; memoria máx. SafeGrad 13,9 GB, Lisa 9,1, PlainSFT 8,8; JSON y esquema exactos en SafeGrad y PlainSFT. Lisa (solo alineación en 20 pasos) aún sin formato. **Se detectó que el tokenizer de Kaggle segmenta distinto al de HF** → se repiten. |
+| 13b | 04-nov | Kaggle | Prueba Lisa 60 pasos (tokenizer de Kaggle) | completó | prueba | Pérdida 1,86→1,03 al entrar a la tarea; JSON compacto con claves inventadas tras 20 pasos de tarea. Solo funcional. |
+| 14 | 04-nov | Kaggle | Pruebas cortas v3 (60 pasos) con tokenizer y config de HF y comprobación de IDs | en curso | prueba | Última validación antes de los entrenamientos definitivos. |
+

@@ -1,7 +1,7 @@
 """Kaggle: instala SafeTune (commit fijado, desde el dataset privado) y entrena {"lisa": 1, "safegrad": 0} en paralelo, uno por GPU."""
 import glob, json, os, shutil, subprocess, sys
 
-EXTRA = ["--max-pasos", "20", "--probar", "3"]   # prueba corta
+EXTRA = ["--max-pasos", "60", "--probar", "3"]   # prueba corta: 60 pasos (Lisa pasa por alineación y tarea)
 METODOS = {"safegrad": 0, "lisa": 1, "plain": 1}   # {metodo: gpu}; en la misma GPU van en secuencia
 raiz = next(iter(glob.glob("/kaggle/input/**/guardian-colombiano-datos", recursive=True)))
 modelo = os.path.dirname(sorted(glob.glob("/kaggle/input/**/tiny-aya/transformers/global/**/config.json", recursive=True), key=len)[0])
@@ -26,7 +26,7 @@ def cadena(gpu, metodos):
         env = {**os.environ, "CUDA_VISIBLE_DEVICES": str(gpu), "PYTHONUNBUFFERED": "1"}
         with open(f"/kaggle/working/log-{metodo}.txt", "w") as log:
             p = subprocess.run([sys.executable, "/kaggle/working/codigo/entrenar_safetune.py", "--metodo", metodo,
-                                "--modelo", modelo, "--datos", raiz, "--salida", f"/kaggle/working/prueba-{metodo}"] + EXTRA,
+                                "--modelo", modelo, "--hf-dir", f"{raiz}/hf_tiny_aya", "--datos", raiz, "--salida", f"/kaggle/working/prueba-{metodo}"] + EXTRA,
                                env=env, stdout=log, stderr=subprocess.STDOUT)
         codigos[metodo] = p.returncode
 

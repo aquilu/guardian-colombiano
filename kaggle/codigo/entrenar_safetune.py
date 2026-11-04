@@ -22,7 +22,7 @@ os.environ.setdefault("PYTORCH_CUDA_ALLOC_CONF", "expandable_segments:True")
 
 import torch
 from datasets import Dataset
-from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
+from transformers import AutoConfig, AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 
 import safetune
 import safetune.runner.harden._gradient_surgery as gs
@@ -36,6 +36,7 @@ LORA_MODULOS = ["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", 
 
 
 KL_REGISTRO: list = []
+CONFIG_HF = None   # config.json de HF (revisión fijada); el de Kaggle Models trae max_position_embeddings=500000
 
 
 def registrar_logs() -> list:
@@ -176,7 +177,8 @@ def referencia_4bit(ruta, **kw):
     """SafeGrad carga una referencia congelada; en 4-bit para que quepan las dos copias en 15 GB."""
     q = BitsAndBytesConfig(load_in_4bit=True, bnb_4bit_quant_type="nf4", bnb_4bit_compute_dtype=torch.float16,
                            bnb_4bit_use_double_quant=True)
-    m = AutoModelForCausalLM.from_pretrained(ruta, quantization_config=q, device_map="cuda:0", dtype=torch.float16)
+    m = AutoModelForCausalLM.from_pretrained(ruta, config=CONFIG_HF, quantization_config=q, device_map="cuda:0",
+                                             dtype=torch.float16)
     m.to = lambda *a, **k: m      # SafeGrad hace .to(dev): ya está ahí, y bnb no admite .to
     return m
 
@@ -184,7 +186,8 @@ def referencia_4bit(ruta, **kw):
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--metodo", choices=["plain", "lisa", "safegrad"], required=True)
-    ap.add_argument("--modelo", required=True)
+    ap.add_argument("--modelo", required=True, help="pesos (idénticos byte a byte a los de HF)")
+    ap.add_argument("--hf-dir", required=True, help="tokenizer y config de HF en la revisión fijada, con tokens_esperados.json")
     ap.add_argument("--datos", required=True, help="carpeta con train.jsonl y alineacion.jsonl")
     ap.add_argument("--salida", required=True)
     ap.add_argument("--epocas", type=int, default=2)
@@ -199,13 +202,27 @@ def main() -> None:
 
     safetune.configure(datasets={"safety_refusals": f"{a.datos}/alineacion.jsonl"}, max_len=384, seed=42,
                        lora_r=16, lora_alpha=32, lora_dropout=0.05, lora_target_modules=LORA_MODULOS)
-    tok = compacta(AutoTokenizer.from_pretrained(a.modelo))
+    # Tokenizer y config de HF, no los de Kaggle Models: con transformers 5.20 el tokenizer de Kaggle carga como
+    # CohereTokenizerFast y segmenta distinto (293 frente a 276 tokens en la misma fila), y rellena a la izquierda.
+    global CONFIG_HF
+    CONFIG_HF = AutoConfig.from_pretrained(a.hf_dir)
+    tok = compacta(AutoTokenizer.from_pretrained(a.hf_dir))
     if tok.pad_token is None:
         tok.pad_token = tok.eos_token
     # SafeTune enmascara las primeras prompt_len posiciones: solo es correcto con relleno a la derecha. El tokenizer
     # de Kaggle Models (transformers 5.20) rellena a la izquierda por defecto y dejaba el prompt dentro de la pérdida.
     tok.padding_side = "right"
-    modelo = AutoModelForCausalLM.from_pretrained(a.modelo, device_map="cuda:0", dtype=torch.float16)
+    esperado = json.load(open(f"{a.hf_dir}/tokens_esperados.json"))
+    msgs = json.loads(open(f"{a.datos}/train.jsonl", encoding="utf-8").readline())["messages"]
+    ids = tok(tok.apply_chat_template(msgs, tokenize=False), add_special_tokens=False)["input_ids"]
+    x = json.loads(open(f"{a.datos}/alineacion.jsonl", encoding="utf-8").readline())
+    ids_al = tok(tok.apply_chat_template([{"role": "user", "content": x["prompt"]}, {"role": "assistant", "content": x["response"]}],
+                                         tokenize=False), add_special_tokens=False)["input_ids"]
+    if ids != esperado["tarea"] or ids_al != esperado["alineacion"]:
+        raise SystemExit(f"la tokenización no coincide con la de referencia (HF {esperado['hf_revision'][:8]}): "
+                         f"{len(ids)} vs {len(esperado['tarea'])} tokens")
+    print(f"tokenización idéntica a la referencia: tarea {len(ids)} tokens, alineación {len(ids_al)} tokens · {type(tok).__name__}")
+    modelo = AutoModelForCausalLM.from_pretrained(a.modelo, config=CONFIG_HF, device_map="cuda:0", dtype=torch.float16)
     modelo.gradient_checkpointing_enable(gradient_checkpointing_kwargs={"use_reentrant": False})
     modelo.enable_input_require_grads()
 

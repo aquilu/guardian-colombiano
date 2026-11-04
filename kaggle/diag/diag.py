@@ -1,9 +1,13 @@
-import glob, os, json, transformers
-from transformers import AutoTokenizer
+import glob, json, os, sys, transformers
 m = os.path.dirname(sorted(glob.glob("/kaggle/input/**/tiny-aya/transformers/global/**/config.json", recursive=True), key=len)[0])
-t = AutoTokenizer.from_pretrained(m)
-print("transformers", transformers.__version__, "| modelo", m)
-print("padding_side:", t.padding_side, "| truncation_side:", t.truncation_side, "| pad:", t.pad_token)
-cfg = json.load(open(os.path.join(m, "tokenizer_config.json")))
-print("tokenizer_config padding_side:", cfg.get("padding_side"), "| claves:", sorted(k for k in cfg if "side" in k or "pad" in k))
-print(t("hola", padding="max_length", max_length=6)["input_ids"])
+print("TCFG", open(os.path.join(m, "tokenizer_config.json")).read().replace("\n", "\\n"))
+print("MCFG", open(os.path.join(m, "config.json")).read().replace("\n", "\\n"))
+raiz = next(iter(glob.glob("/kaggle/input/**/guardian-colombiano-datos", recursive=True)))
+sys.path.insert(0, f"{raiz}/codigo")
+from transformers import AutoTokenizer
+from plantilla import compacta
+t = compacta(AutoTokenizer.from_pretrained(m))
+msgs = json.loads(open(f"{raiz}/train.jsonl").readline())["messages"]
+texto = t.apply_chat_template(msgs, tokenize=False)
+ids = t(texto, add_special_tokens=False)["input_ids"]
+print("TOK", transformers.__version__, len(ids), json.dumps(ids))
