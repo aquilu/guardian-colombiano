@@ -17,7 +17,7 @@ Deliverables: HF dataset and model collections, a GitHub write-up, and a live de
 
 **Questions:**
 - Does combining 2a and 2b in one submission work, using CuratorKIT + SafeTune + AuditKIT (+ CircuitKIT)?
-- Is OK to use GPT models only as teacher/judge, with a Cohere Aya model as the final model?
+- Is it OK to use GPT models only as teacher/judge, with a Cohere Aya model as the final model?
 - Is a synthetic-only dataset acceptable, given we have no real user data yet?
 
 Thanks!
