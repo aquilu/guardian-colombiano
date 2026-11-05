@@ -30,6 +30,9 @@ def main(ensayo):
     # 1. entrenamiento
     for m in ("plain", "lisa", "safegrad"):
         copiar(f"modelos/guardian-{m}-global/resumen_entrenamiento.json", f"training/{m}/resumen_entrenamiento.json")
+    for v in ("water", "fire"):   # ejecución #22
+        copiar(f"modelos/guardian-lisa-{v}/resumen_entrenamiento.json", f"training/lisa-{v}/resumen_entrenamiento.json")
+        copiar(f"kaggle/salidas/variantes/log-{v}.txt", f"training/kaggle-logs/variantes-log-lisa-{v}.txt")
     for k, f in (("plain-final", "log-plain.txt"), ("harden-final", "log-lisa.txt"), ("harden-final", "log-safegrad.txt"),
                  ("diag-safegrad", "log-safegrad.txt")):
         copiar(f"kaggle/salidas/{k}/{f}", f"training/kaggle-logs/{k}-{f}")
@@ -53,7 +56,7 @@ def main(ensayo):
         y = json.loads(l)
         claude[(y["modelo"], y["id"], y["idioma"])] = y["claude"]
     tachadas = 0
-    for m in ("base", "plain", "lisa", "safegrad"):
+    for m in ("base", "plain", "lisa", "safegrad", "base-water", "lisa-water", "base-fire", "lisa-fire"):
         out = ST / f"final_eval/safety/seg-{m}.judged.jsonl"
         out.parent.mkdir(parents=True, exist_ok=True)
         with open(out, "w", encoding="utf-8") as f:
@@ -69,7 +72,8 @@ def main(ensayo):
                     tachadas += 1
                 f.write(json.dumps(y, ensure_ascii=False) + "\n")
         copiar(f"resultados/final/seg-{m}.seguridad.json", f"final_eval/safety/seg-{m}.metrics.json")
-    for f in ("analisis_final.json", "roi.json", "seg-claude.resumen.json", "correr_final.sh"):
+    for f in ("analisis_final.json", "roi.json", "seg-claude.resumen.json", "correr_final.sh",
+              "analisis_variantes.json", "correr_variantes.sh"):
         copiar(f"resultados/final/{f}", f"final_eval/{f}")
     # 4b. AuditKIT: resumen tal cual; en jailbreak solo se conservan los rechazos claros
     rechazo = re.compile(r"(?i)^\W*(i(?:'|’)m sorry|i can(?:'|’)?t|i cannot|i won(?:'|’)t|lo siento|no puedo)")
@@ -84,6 +88,7 @@ def main(ensayo):
                     tachadas += 1
                 f.write(json.dumps(t, ensure_ascii=False) + "\n")
     copiar("AUDITKIT.md", "auditkit/AUDITKIT.md")
+    copiar("VARIANTES.md", "final_eval/VARIANTES.md")
     # 5. costos
     copiar("registro_openrouter.jsonl", "costs/registro_openrouter.jsonl")
     copiar("registro_openai.jsonl", "costs/registro_openai.jsonl")

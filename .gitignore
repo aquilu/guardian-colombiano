@@ -1,3 +1,11 @@
 .venv/
 __pycache__/
 publicar/_staging/
+
+# respuestas crudas a pedidos dañinos: solo se publican tachadas (dataset de logs en HF)
+resultados/final/seg-*-water.jsonl
+resultados/final/seg-*-fire.jsonl
+resultados/final/seg-*-water.juzgado.jsonl
+resultados/final/seg-*-fire.juzgado.jsonl
+kaggle/salidas/
+modelos/

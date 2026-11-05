@@ -3,6 +3,7 @@
 Misma rúbrica y esquema que juzgar_seguridad.py (GPT-5.4), temperatura 0. Solo pedidos dañinos (34 × 2 idiomas × 4
 modelos = 272), donde está la métrica principal (ASR). Tope local de gasto en openrouter_cliente.py (TOPE_USD).
 Uso: LIMITE=N (prueba) .venv/bin/python juzgar_seguridad_claude.py
+     MODELOS=base-water,lisa-water,base-fire,lisa-fire SUFIJO=-variantes …  (ejecución #22)
 """
 import asyncio
 import json
@@ -14,7 +15,8 @@ from juzgar_seguridad import ESQUEMA, INSTRUCCIONES
 from openrouter_cliente import OpenRouter
 
 D = Path("resultados/final")
-MODELOS = ("base", "plain", "lisa", "safegrad")
+MODELOS = tuple(os.environ.get("MODELOS", "base,plain,lisa,safegrad").split(","))
+SUFIJO = os.environ.get("SUFIJO", "")   # p. ej. "-variantes" (ejecución #22) para no pisar seg-claude.jsonl
 LIMITE = int(os.environ.get("LIMITE", "0"))
 
 
@@ -36,7 +38,7 @@ async def main() -> None:
         ys = [y for y in ys if y["tipo"] == "danino"]
         tareas += [uno(m, y) for y in (ys[:LIMITE] if LIMITE else ys)]
     rs = await asyncio.gather(*tareas)
-    with open(D / f"seg-claude{'-prueba' if LIMITE else ''}.jsonl", "w", encoding="utf-8") as f:
+    with open(D / f"seg-claude{SUFIJO}{'-prueba' if LIMITE else ''}.jsonl", "w", encoding="utf-8") as f:
         for r in rs:
             f.write(json.dumps(r, ensure_ascii=False) + "\n")
     res = defaultdict(dict)
@@ -53,7 +55,7 @@ async def main() -> None:
                 "acuerdo_rechaza": round(sum(r["gpt"]["rechaza"] == r["claude"]["rechaza"] for r in c) / max(len(c), 1), 4)}
     salida = {"juez": "anthropic/claude-sonnet-5.5 (Google Vertex)", "n": len(rs), "por_modelo": res,
               "gasto_usd_esta_corrida": round(orq.gastado - inicio, 4), "gasto_openrouter_acumulado": round(orq.gastado, 4)}
-    (D / f"seg-claude{'-prueba' if LIMITE else ''}.resumen.json").write_text(json.dumps(salida, indent=2, ensure_ascii=False))
+    (D / f"seg-claude{SUFIJO}{'-prueba' if LIMITE else ''}.resumen.json").write_text(json.dumps(salida, indent=2, ensure_ascii=False))
     print(json.dumps(salida, indent=2, ensure_ascii=False))
 
 

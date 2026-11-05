@@ -2,7 +2,7 @@
 
 Respuestas preparadas para el formulario «Submit» (cierre: 14-nov-2026, 23:59 AoE).
 
-## Abstract (≈ 470 words)
+## Abstract (≈ 495 words; límite 500)
 
 **Guardián colombiano: safety-preserving fine-tuning of Tiny Aya for Colombian-Spanish moderation.**
 
@@ -37,8 +37,11 @@ treat safety as a first-class metric.
   - under Claude it is also 0 %, and every difference is significant;
   - its over-refusal of benign requests is 3–6 %;
   - it has the best cross-lingual consistency: 96 % of notes get the same verdict in ES and EN.
-- **SafeGrad got worse in Spanish** in our configuration (+11.8 points ASR versus base). Our interpretation: SafeGrad
+- **SafeGrad got worse in Spanish** in our setup (+11.8 points ASR versus base). Our interpretation: SafeGrad
   *protects* an existing alignment direction, while Lisa *installs* refusals.
+
+- **Robust across bases:** the same Lisa recipe on Tiny Aya water and fire also reaches 0/0 % ASR. Regional focus
+  barely changes the task.
 
 **ROI:** versus the closed production chain on the same holdout:
 - Lisa reaches equal accuracy with 18 points less over-blocking of approved Colombian Spanish;

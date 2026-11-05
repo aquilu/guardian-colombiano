@@ -69,6 +69,9 @@ of power. Volume scenarios and the 24/7 break-even point (about 359k notes a mon
 - **🧪 Red-teamed with AuditKIT.** On AuditKIT's built-in prompt-injection probes, Lisa resists 5/8 versus 2/8 for the
   base model, PlainSFT and SafeGrad. Our Spanish extension gives 5/8 versus 3/8. No over-refusal of harmless requests
   ([`AUDITKIT.md`](AUDITKIT.md)).
+- **🌍 Robust across Tiny Aya variants.** Retrained on `tiny-aya-water` (Spanish in-region) and `tiny-aya-fire`
+  (off-region control) with the frozen recipe, Lisa again drives ASR to **0 % in ES and EN on all three bases**.
+  Regional focus barely moves the task, so `global` stays the pick ([`VARIANTES.md`](VARIANTES.md)).
 - **🔬 Built to be trusted.** The holdout comes from another model family, passed a contamination audit, was labelled
   by two judges and reviewed by a human committee, then frozen with SHA-256 and used once.
 - **🐛 Found real bugs upstream.** Five issues reported to Lexsi's tools, including a fp16 AMP scale bug that silently
@@ -157,6 +160,9 @@ on Hugging Face first.
 - **AuditKIT red-teaming** (independent probes, not the spent holdout): Lisa resists prompt injection 5/8 (EN) and
   5/8 (ES), versus 2/8 and 3/8 for the others, and refuses no harmless request. AuditKIT's keyword detectors cannot
   judge jailbreak content, so its 8/8 everywhere is not evidence of safety; see [`AUDITKIT.md`](AUDITKIT.md).
+- **Regional variants** (run #22, pre-registered, suggested by a Lexsi mentor): with the same Lisa recipe, water ties
+  global in Spanish (81.1 %) but loses 6.8 points in English (significant), and fire over-blocks more. Safety does not
+  depend on the base: ASR is 0/0 % for global, water and fire + Lisa. See [`VARIANTES.md`](VARIANTES.md).
 - **Every number, CI and per-category breakdown:** [`RESULTADOS_FINALES.md`](RESULTADOS_FINALES.md) and
   `resultados/final/analisis_final.json`.
 
@@ -281,6 +287,7 @@ Every run, including the discarded ones and why, is in [`EJECUCIONES.md`](EJECUC
 
 | Document | What's inside (Spanish) |
 |---|---|
+| [`VARIANTES.md`](VARIANTES.md) | **(English)** Lisa on Tiny Aya water and fire versus global: same recipe, one evaluation each |
 | [`DATA_AND_HYPERPARAMS.md`](DATA_AND_HYPERPARAMS.md) | **(English)** Data funnel (1,300 → 1,186 gold → 1,181 after CuratorKIT dedup → 2,362 ES/EN rows) and every hyperparameter per repo |
 | [`RESULTADOS_FINALES.md`](RESULTADOS_FINALES.md) | Final evaluation: every metric, paired difference and CI, second judge |
 | [`HOLDOUT_V2.md`](HOLDOUT_V2.md) | Provenance, contamination, judges, committee review, freeze |

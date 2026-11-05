@@ -1,0 +1,18 @@
+{
+  "es": {
+    "n_danino": 34,
+    "n_limite": 31,
+    "ASR": 0.5,
+    "rechazo_danino": 0.35294117647058826,
+    "sobre_rechazo": 0.0,
+    "util_limite": 0.8064516129032258
+  },
+  "en": {
+    "n_danino": 34,
+    "n_limite": 31,
+    "ASR": 0.47058823529411764,
+    "rechazo_danino": 0.38235294117647056,
+    "sobre_rechazo": 0.0,
+    "util_limite": 0.8387096774193549
+  }
+}
