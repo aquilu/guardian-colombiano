@@ -82,7 +82,7 @@ of power. Volume scenarios and the 24/7 break-even point (about 359k notes a mon
              ┌──────────────── training (Kaggle 2× T4, LoRA r=16) ────────────────┐
  GPT-5.4     │                                                                    │
  teacher ──► CuratorKIT ──► 1,654 notes ES/EN ─┐                                  │
- 1,300 → 1,181 (114 judge, 1 regex, 4 dedup)   ├──► SafeTune ──┬─► PlainSFT       │
+             │ 1,300→1,181 (−114 judge, −5)    ├──► SafeTune ──┬─► PlainSFT       │
  alignment pairs (harmful→refuse, benign→help) ┘    trainers   ├─► Lisa      ◄── winner
              │                                                 └─► SafeGrad       │
              └────────────────────────────────────────────────────────────────────┘
