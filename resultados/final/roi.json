@@ -1,0 +1,822 @@
+{
+  "metodo": "ROI: guardián cerrado de 12-cuentos frente a Tiny Aya afinado, sobre el MISMO holdout v2 congelado (sin llamadas nuevas).\n\nCadena cerrada = la de producción en 12-cuentos (ref_guardian.evaluar): reglas locales → omni-moderation →\ngpt-5.4-mini (política completa), veredicto = el más severo; un «rechazado» temprano corta la cadena. Las respuestas de\nomni-moderation y gpt-5.4-mini se guardaron al etiquetar el holdout (verificado/holdout_v2_moderacion_jueces.jsonl,\n`lineas_base`); umbral de revisión de omni-moderation = 0,15, como en holdout_v2_juzgar.py.",
+  "calidad": {
+    "cadena_12cuentos": {
+      "es": {
+        "exactitud": {
+          "valor": 0.8243,
+          "n": 74,
+          "lisa_menos_este": {
+            "dif": -0.0135,
+            "ic95": [
+              -0.1528,
+              0.1053
+            ],
+            "excluye_0": false
+          }
+        },
+        "exactitud_comite": {
+          "valor": 0.7297,
+          "n": 74,
+          "lisa_menos_este": {
+            "dif": -0.0135,
+            "ic95": [
+              -0.1447,
+              0.0972
+            ],
+            "excluye_0": false
+          }
+        },
+        "exactitud_publicar": {
+          "valor": 0.8378,
+          "n": 74,
+          "lisa_menos_este": {
+            "dif": 0.0405,
+            "ic95": [
+              -0.0405,
+              0.1154
+            ],
+            "excluye_0": false
+          }
+        },
+        "sobre_bloqueo": {
+          "valor": 0.3333,
+          "n": 33,
+          "lisa_menos_este": {
+            "dif": -0.1818,
+            "ic95": [
+              -0.3077,
+              -0.0833
+            ],
+            "excluye_0": true
+          }
+        },
+        "se_cuela": {
+          "valor": 0.0244,
+          "n": 41,
+          "lisa_menos_este": {
+            "dif": 0.0732,
+            "ic95": [
+              0.0,
+              0.1951
+            ],
+            "excluye_0": false
+          }
+        }
+      },
+      "en": {
+        "exactitud": {
+          "valor": 0.8514,
+          "n": 74,
+          "lisa_menos_este": {
+            "dif": -0.027,
+            "ic95": [
+              -0.1429,
+              0.0769
+            ],
+            "excluye_0": false
+          }
+        },
+        "exactitud_comite": {
+          "valor": 0.7297,
+          "n": 74,
+          "lisa_menos_este": {
+            "dif": 0.0,
+            "ic95": [
+              -0.1143,
+              0.0972
+            ],
+            "excluye_0": false
+          }
+        },
+        "exactitud_publicar": {
+          "valor": 0.8784,
+          "n": 74,
+          "lisa_menos_este": {
+            "dif": 0.0,
+            "ic95": [
+              -0.0694,
+              0.0658
+            ],
+            "excluye_0": false
+          }
+        },
+        "sobre_bloqueo": {
+          "valor": 0.2424,
+          "n": 33,
+          "lisa_menos_este": {
+            "dif": -0.0606,
+            "ic95": [
+              -0.2,
+              0.0882
+            ],
+            "excluye_0": false
+          }
+        },
+        "se_cuela": {
+          "valor": 0.0244,
+          "n": 41,
+          "lisa_menos_este": {
+            "dif": 0.0488,
+            "ic95": [
+              0.0,
+              0.1282
+            ],
+            "excluye_0": false
+          }
+        }
+      }
+    },
+    "gpt-5.4-mini_solo": {
+      "es": {
+        "exactitud": {
+          "valor": 0.9054,
+          "n": 74,
+          "lisa_menos_este": {
+            "dif": -0.0946,
+            "ic95": [
+              -0.2286,
+              0.0256
+            ],
+            "excluye_0": false
+          }
+        },
+        "exactitud_comite": {
+          "valor": 0.8108,
+          "n": 74,
+          "lisa_menos_este": {
+            "dif": -0.0946,
+            "ic95": [
+              -0.2162,
+              0.0
+            ],
+            "excluye_0": false
+          }
+        },
+        "exactitud_publicar": {
+          "valor": 0.9324,
+          "n": 74,
+          "lisa_menos_este": {
+            "dif": -0.0541,
+            "ic95": [
+              -0.1316,
+              0.0135
+            ],
+            "excluye_0": false
+          }
+        },
+        "sobre_bloqueo": {
+          "valor": 0.1212,
+          "n": 33,
+          "lisa_menos_este": {
+            "dif": 0.0303,
+            "ic95": [
+              -0.0645,
+              0.1333
+            ],
+            "excluye_0": false
+          }
+        },
+        "se_cuela": {
+          "valor": 0.0244,
+          "n": 41,
+          "lisa_menos_este": {
+            "dif": 0.0732,
+            "ic95": [
+              0.0,
+              0.1951
+            ],
+            "excluye_0": false
+          }
+        }
+      },
+      "en": {
+        "exactitud": {
+          "valor": 0.8784,
+          "n": 74,
+          "lisa_menos_este": {
+            "dif": -0.0541,
+            "ic95": [
+              -0.1622,
+              0.0395
+            ],
+            "excluye_0": false
+          }
+        },
+        "exactitud_comite": {
+          "valor": 0.7568,
+          "n": 74,
+          "lisa_menos_este": {
+            "dif": -0.027,
+            "ic95": [
+              -0.1351,
+              0.0658
+            ],
+            "excluye_0": false
+          }
+        },
+        "exactitud_publicar": {
+          "valor": 0.9054,
+          "n": 74,
+          "lisa_menos_este": {
+            "dif": -0.027,
+            "ic95": [
+              -0.0833,
+              0.0256
+            ],
+            "excluye_0": false
+          }
+        },
+        "sobre_bloqueo": {
+          "valor": 0.1818,
+          "n": 33,
+          "lisa_menos_este": {
+            "dif": 0.0,
+            "ic95": [
+              -0.1212,
+              0.125
+            ],
+            "excluye_0": false
+          }
+        },
+        "se_cuela": {
+          "valor": 0.0244,
+          "n": 41,
+          "lisa_menos_este": {
+            "dif": 0.0488,
+            "ic95": [
+              0.0,
+              0.1282
+            ],
+            "excluye_0": false
+          }
+        }
+      }
+    },
+    "reglas+omni": {
+      "es": {
+        "exactitud": {
+          "valor": 0.4865,
+          "n": 74,
+          "lisa_menos_este": {
+            "dif": 0.3243,
+            "ic95": [
+              0.1842,
+              0.4853
+            ],
+            "excluye_0": true
+          }
+        },
+        "exactitud_comite": {
+          "valor": 0.4865,
+          "n": 74,
+          "lisa_menos_este": {
+            "dif": 0.2297,
+            "ic95": [
+              0.1154,
+              0.3571
+            ],
+            "excluye_0": true
+          }
+        },
+        "exactitud_publicar": {
+          "valor": 0.5811,
+          "n": 74,
+          "lisa_menos_este": {
+            "dif": 0.2973,
+            "ic95": [
+              0.1447,
+              0.4706
+            ],
+            "excluye_0": true
+          }
+        },
+        "sobre_bloqueo": {
+          "valor": 0.2727,
+          "n": 33,
+          "lisa_menos_este": {
+            "dif": -0.1212,
+            "ic95": [
+              -0.25,
+              -0.0278
+            ],
+            "excluye_0": true
+          }
+        },
+        "se_cuela": {
+          "valor": 0.5366,
+          "n": 41,
+          "lisa_menos_este": {
+            "dif": -0.439,
+            "ic95": [
+              -0.6923,
+              -0.186
+            ],
+            "excluye_0": true
+          }
+        }
+      },
+      "en": {
+        "exactitud": {
+          "valor": 0.4865,
+          "n": 74,
+          "lisa_menos_este": {
+            "dif": 0.3378,
+            "ic95": [
+              0.1571,
+              0.527
+            ],
+            "excluye_0": true
+          }
+        },
+        "exactitud_comite": {
+          "valor": 0.5,
+          "n": 74,
+          "lisa_menos_este": {
+            "dif": 0.2297,
+            "ic95": [
+              0.0714,
+              0.3947
+            ],
+            "excluye_0": true
+          }
+        },
+        "exactitud_publicar": {
+          "valor": 0.6351,
+          "n": 74,
+          "lisa_menos_este": {
+            "dif": 0.2432,
+            "ic95": [
+              0.0658,
+              0.4342
+            ],
+            "excluye_0": true
+          }
+        },
+        "sobre_bloqueo": {
+          "valor": 0.1212,
+          "n": 33,
+          "lisa_menos_este": {
+            "dif": 0.0606,
+            "ic95": [
+              -0.0571,
+              0.1875
+            ],
+            "excluye_0": false
+          }
+        },
+        "se_cuela": {
+          "valor": 0.561,
+          "n": 41,
+          "lisa_menos_este": {
+            "dif": -0.4878,
+            "ic95": [
+              -0.7333,
+              -0.2326
+            ],
+            "excluye_0": true
+          }
+        }
+      }
+    },
+    "lisa": {
+      "es": {
+        "exactitud": {
+          "valor": 0.8108,
+          "n": 74
+        },
+        "exactitud_comite": {
+          "valor": 0.7162,
+          "n": 74
+        },
+        "exactitud_publicar": {
+          "valor": 0.8784,
+          "n": 74
+        },
+        "sobre_bloqueo": {
+          "valor": 0.1515,
+          "n": 33
+        },
+        "se_cuela": {
+          "valor": 0.0976,
+          "n": 41
+        }
+      },
+      "en": {
+        "exactitud": {
+          "valor": 0.8243,
+          "n": 74
+        },
+        "exactitud_comite": {
+          "valor": 0.7297,
+          "n": 74
+        },
+        "exactitud_publicar": {
+          "valor": 0.8784,
+          "n": 74
+        },
+        "sobre_bloqueo": {
+          "valor": 0.1818,
+          "n": 33
+        },
+        "se_cuela": {
+          "valor": 0.0732,
+          "n": 41
+        }
+      }
+    },
+    "plain": {
+      "es": {
+        "exactitud": {
+          "valor": 0.8108,
+          "n": 74,
+          "lisa_menos_este": {
+            "dif": 0.0,
+            "ic95": [
+              -0.0676,
+              0.0658
+            ],
+            "excluye_0": false
+          }
+        },
+        "exactitud_comite": {
+          "valor": 0.7027,
+          "n": 74,
+          "lisa_menos_este": {
+            "dif": 0.0135,
+            "ic95": [
+              -0.0429,
+              0.0714
+            ],
+            "excluye_0": false
+          }
+        },
+        "exactitud_publicar": {
+          "valor": 0.8649,
+          "n": 74,
+          "lisa_menos_este": {
+            "dif": 0.0135,
+            "ic95": [
+              -0.0278,
+              0.0641
+            ],
+            "excluye_0": false
+          }
+        },
+        "sobre_bloqueo": {
+          "valor": 0.2121,
+          "n": 33,
+          "lisa_menos_este": {
+            "dif": -0.0606,
+            "ic95": [
+              -0.1429,
+              0.0
+            ],
+            "excluye_0": false
+          }
+        },
+        "se_cuela": {
+          "valor": 0.0732,
+          "n": 41,
+          "lisa_menos_este": {
+            "dif": 0.0244,
+            "ic95": [
+              0.0,
+              0.0769
+            ],
+            "excluye_0": false
+          }
+        }
+      },
+      "en": {
+        "exactitud": {
+          "valor": 0.7703,
+          "n": 74,
+          "lisa_menos_este": {
+            "dif": 0.0541,
+            "ic95": [
+              -0.0263,
+              0.1389
+            ],
+            "excluye_0": false
+          }
+        },
+        "exactitud_comite": {
+          "valor": 0.6622,
+          "n": 74,
+          "lisa_menos_este": {
+            "dif": 0.0676,
+            "ic95": [
+              0.0,
+              0.1447
+            ],
+            "excluye_0": false
+          }
+        },
+        "exactitud_publicar": {
+          "valor": 0.8649,
+          "n": 74,
+          "lisa_menos_este": {
+            "dif": 0.0135,
+            "ic95": [
+              -0.0278,
+              0.0588
+            ],
+            "excluye_0": false
+          }
+        },
+        "sobre_bloqueo": {
+          "valor": 0.2424,
+          "n": 33,
+          "lisa_menos_este": {
+            "dif": -0.0606,
+            "ic95": [
+              -0.1429,
+              0.0
+            ],
+            "excluye_0": false
+          }
+        },
+        "se_cuela": {
+          "valor": 0.0488,
+          "n": 41,
+          "lisa_menos_este": {
+            "dif": 0.0244,
+            "ic95": [
+              0.0,
+              0.0769
+            ],
+            "excluye_0": false
+          }
+        }
+      }
+    },
+    "safegrad": {
+      "es": {
+        "exactitud": {
+          "valor": 0.7973,
+          "n": 74,
+          "lisa_menos_este": {
+            "dif": 0.0135,
+            "ic95": [
+              -0.0556,
+              0.0811
+            ],
+            "excluye_0": false
+          }
+        },
+        "exactitud_comite": {
+          "valor": 0.6892,
+          "n": 74,
+          "lisa_menos_este": {
+            "dif": 0.027,
+            "ic95": [
+              -0.0395,
+              0.0921
+            ],
+            "excluye_0": false
+          }
+        },
+        "exactitud_publicar": {
+          "valor": 0.8514,
+          "n": 74,
+          "lisa_menos_este": {
+            "dif": 0.027,
+            "ic95": [
+              -0.0263,
+              0.0811
+            ],
+            "excluye_0": false
+          }
+        },
+        "sobre_bloqueo": {
+          "valor": 0.2424,
+          "n": 33,
+          "lisa_menos_este": {
+            "dif": -0.0909,
+            "ic95": [
+              -0.1818,
+              0.0
+            ],
+            "excluye_0": false
+          }
+        },
+        "se_cuela": {
+          "valor": 0.0732,
+          "n": 41,
+          "lisa_menos_este": {
+            "dif": 0.0244,
+            "ic95": [
+              0.0,
+              0.0769
+            ],
+            "excluye_0": false
+          }
+        }
+      },
+      "en": {
+        "exactitud": {
+          "valor": 0.7973,
+          "n": 74,
+          "lisa_menos_este": {
+            "dif": 0.027,
+            "ic95": [
+              -0.0395,
+              0.0946
+            ],
+            "excluye_0": false
+          }
+        },
+        "exactitud_comite": {
+          "valor": 0.6892,
+          "n": 74,
+          "lisa_menos_este": {
+            "dif": 0.0405,
+            "ic95": [
+              -0.0139,
+              0.1
+            ],
+            "excluye_0": false
+          }
+        },
+        "exactitud_publicar": {
+          "valor": 0.8649,
+          "n": 74,
+          "lisa_menos_este": {
+            "dif": 0.0135,
+            "ic95": [
+              -0.0278,
+              0.0588
+            ],
+            "excluye_0": false
+          }
+        },
+        "sobre_bloqueo": {
+          "valor": 0.2424,
+          "n": 33,
+          "lisa_menos_este": {
+            "dif": -0.0606,
+            "ic95": [
+              -0.1429,
+              0.0
+            ],
+            "excluye_0": false
+          }
+        },
+        "se_cuela": {
+          "valor": 0.0488,
+          "n": 41,
+          "lisa_menos_este": {
+            "dif": 0.0244,
+            "ic95": [
+              0.0,
+              0.0769
+            ],
+            "excluye_0": false
+          }
+        }
+      }
+    },
+    "base-oficial": {
+      "es": {
+        "exactitud": {
+          "valor": 0.6216,
+          "n": 74,
+          "lisa_menos_este": {
+            "dif": 0.1892,
+            "ic95": [
+              0.027,
+              0.3514
+            ],
+            "excluye_0": true
+          }
+        },
+        "exactitud_comite": {
+          "valor": 0.5811,
+          "n": 74,
+          "lisa_menos_este": {
+            "dif": 0.1351,
+            "ic95": [
+              -0.0147,
+              0.2917
+            ],
+            "excluye_0": false
+          }
+        },
+        "exactitud_publicar": {
+          "valor": 0.7297,
+          "n": 74,
+          "lisa_menos_este": {
+            "dif": 0.1486,
+            "ic95": [
+              0.0,
+              0.3026
+            ],
+            "excluye_0": false
+          }
+        },
+        "sobre_bloqueo": {
+          "valor": 0.0303,
+          "n": 33,
+          "lisa_menos_este": {
+            "dif": 0.1212,
+            "ic95": [
+              0.0,
+              0.2941
+            ],
+            "excluye_0": false
+          }
+        },
+        "se_cuela": {
+          "valor": 0.4634,
+          "n": 41,
+          "lisa_menos_este": {
+            "dif": -0.3659,
+            "ic95": [
+              -0.5405,
+              -0.1951
+            ],
+            "excluye_0": true
+          }
+        }
+      },
+      "en": {
+        "exactitud": {
+          "valor": 0.6892,
+          "n": 74,
+          "lisa_menos_este": {
+            "dif": 0.1351,
+            "ic95": [
+              -0.0278,
+              0.2973
+            ],
+            "excluye_0": false
+          }
+        },
+        "exactitud_comite": {
+          "valor": 0.6757,
+          "n": 74,
+          "lisa_menos_este": {
+            "dif": 0.0541,
+            "ic95": [
+              -0.0833,
+              0.1842
+            ],
+            "excluye_0": false
+          }
+        },
+        "exactitud_publicar": {
+          "valor": 0.7703,
+          "n": 74,
+          "lisa_menos_este": {
+            "dif": 0.1081,
+            "ic95": [
+              -0.0441,
+              0.2703
+            ],
+            "excluye_0": false
+          }
+        },
+        "sobre_bloqueo": {
+          "valor": 0.0,
+          "n": 33,
+          "lisa_menos_este": {
+            "dif": 0.1818,
+            "ic95": [
+              0.0312,
+              0.3571
+            ],
+            "excluye_0": true
+          }
+        },
+        "se_cuela": {
+          "valor": 0.4146,
+          "n": 41,
+          "lisa_menos_este": {
+            "dif": -0.3415,
+            "ic95": [
+              -0.5128,
+              -0.1628
+            ],
+            "excluye_0": true
+          }
+        }
+      }
+    }
+  },
+  "tokens_gpt-5.4-mini_por_postit": {
+    "llamadas": 160,
+    "entrada_media": 701.8,
+    "salida_media": 109.4
+  },
+  "rendimiento_lisa_local": {
+    "segundos": 412.0,
+    "por_postit_s": 1.157,
+    "tokens_entrada": 52881,
+    "tokens_salida": 42339,
+    "tokens_salida_por_s": 102.8,
+    "gpu": "NVIDIA GeForce RTX 3050",
+    "cuantizacion": "nf4 4-bit",
+    "lote": 8
+  }
+}
