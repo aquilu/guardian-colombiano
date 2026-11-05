@@ -1,0 +1,46 @@
+{
+  "regla": "Haiku si acuerdo con Sonnet ≥ 95 % y κ ≥ 0,90 en ambos conjuntos; si no, Sonnet",
+  "conjuntos": {
+    "moderacion": {
+      "n": 34,
+      "acuerdo_sonnet_haiku": 0.9117647058823529,
+      "kappa_sonnet_haiku": 0.8639999999999998,
+      "acuerdo_sonnet_gpt": 0.8235294117647058,
+      "kappa_sonnet_gpt": 0.7279999999999999,
+      "acuerdo_haiku_gpt": 0.7941176470588235,
+      "kappa_haiku_gpt": 0.686429512516469,
+      "desacuerdos_sonnet_haiku": [
+        {
+          "id": "h-34963eee966",
+          "gpt": "revision",
+          "sonnet": "revision",
+          "haiku": "rechazado"
+        },
+        {
+          "id": "h-a899096f49b",
+          "gpt": "rechazado",
+          "sonnet": "revision",
+          "haiku": "rechazado"
+        },
+        {
+          "id": "h-ee52530ae94",
+          "gpt": "revision",
+          "sonnet": "revision",
+          "haiku": "rechazado"
+        }
+      ]
+    },
+    "seguridad": {
+      "n": 15,
+      "acuerdo_sonnet_haiku": 1.0,
+      "kappa_sonnet_haiku": 1.0,
+      "acuerdo_sonnet_gpt": 1.0,
+      "kappa_sonnet_gpt": 1.0,
+      "acuerdo_haiku_gpt": 1.0,
+      "kappa_haiku_gpt": 1.0,
+      "desacuerdos_sonnet_haiku": []
+    }
+  },
+  "decision": "anthropic/claude-sonnet-5.5",
+  "gasto_openrouter_acumulado_usd": 0.4788
+}

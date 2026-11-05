@@ -1,0 +1,41 @@
+{
+  "version": "holdout_v1",
+  "fecha": "2026-11-04",
+  "sha256": "0f2468f06ecf98c51c1ec1a1af4dc0193b571db8babd4a05522987094eda7828",
+  "postits": 227,
+  "filas_es_en": 454,
+  "por_categoria": {
+    "violencia_grafica": 16,
+    "modismo_falso_positivo": 16,
+    "publicidad_spam": 16,
+    "sexual_explicito": 16,
+    "semilla_app": 19,
+    "cura_tradicional": 16,
+    "migrante_digno": 16,
+    "fuera_tema_inyeccion": 16,
+    "datos_terceros": 16,
+    "vulgaridad_ambigua": 16,
+    "limpio": 16,
+    "memoria_dura_legitima": 16,
+    "politica_partidista": 16,
+    "odio_regional_xenofobo": 16
+  },
+  "fuentes": {
+    "semilla_app": 19,
+    "generado_holdout": 208
+  },
+  "descartados": 0,
+  "umbral_casi_duplicado": 0.85,
+  "acuerdo_juez_objetivo": "187/227",
+  "revision_humana": {
+    "estado": "pendiente",
+    "desacuerdos": 40,
+    "auditoria_aleatoria": 37,
+    "planilla": "revision_holdout_v1.csv"
+  },
+  "reglas": [
+    "no se sube a Kaggle",
+    "no se usa para entrenar ni calibrar (ρ, umbrales, prompts)",
+    "las etiquetas definitivas son las confirmadas por el comité"
+  ]
+}
