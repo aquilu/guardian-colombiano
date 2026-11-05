@@ -41,5 +41,6 @@ RTX 3050.
 - **Tamaño:** son muestras pequeñas (5 a 8 sondas), así que no se afirma significancia. Es evidencia complementaria,
   no la métrica principal.
 
-Las trazas por sonda y por modelo están en `resultados/auditkit/`. En la versión publicada en
-`vasmi-sas/guardian-colombiano-logs`, las salidas de `jailbreak` que no son un rechazo claro van tachadas.
+El resumen está en `resultados/auditkit/resumen.json`. Las trazas por sonda y por modelo se publican solo en el
+dataset `vasmi-sas/guardian-colombiano-logs` (carpeta `auditkit/`), con las salidas de `jailbreak` que no son un
+rechazo claro tachadas. No están en este repositorio.

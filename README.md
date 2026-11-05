@@ -241,7 +241,7 @@ Every script documents its flags in its docstring.
 - **Cohere Labs:** [Tiny Aya Global](https://huggingface.co/CohereLabs/tiny-aya-global), pinned at revision `af89d219`.
 - **Hugging Face:**
   - [models collection](https://huggingface.co/collections/vasmi-sas/guardian-colombiano-models-6aec689cd4567b9382632800): 3 adapters, base model, demo;
-  - [datasets & logs collection](https://huggingface.co/collections/vasmi-sas/guardian-colombiano-datasets-and-logs-6aec7de27cf401718695e2fb): training data, alignment pairs, frozen holdout, logs, traces and evaluation outputs (harmful responses redacted);
+  - [datasets & logs collection](https://huggingface.co/collections/vasmi-sas/guardian-colombiano-datasets-and-logs-6aec7de27cf401718695e2fb): training data, alignment pairs, frozen holdout, logs, traces and evaluation outputs (harmful responses redacted). Raw model responses to harmful requests are deliberately **not** in this Git repository;
   - [ZeroGPU demo](https://huggingface.co/spaces/aquilu/guardian-colombiano).
 - **Teachers and judges:**
   - OpenAI GPT-5.4 and gpt-5.4-mini (also the production baseline);
