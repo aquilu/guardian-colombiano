@@ -82,7 +82,7 @@ of power. Volume scenarios and the 24/7 break-even point (about 359k notes a mon
              ┌──────────────── training (Kaggle 2× T4, LoRA r=16) ────────────────┐
  GPT-5.4     │                                                                    │
  teacher ──► CuratorKIT ──► 1,654 notes ES/EN ─┐                                  │
-             │ (dedup, QA)                     ├──► SafeTune ──┬─► PlainSFT       │
+ 1,300 → 1,181 (114 judge, 1 regex, 4 dedup)   ├──► SafeTune ──┬─► PlainSFT       │
  alignment pairs (harmful→refuse, benign→help) ┘    trainers   ├─► Lisa      ◄── winner
              │                                                 └─► SafeGrad       │
              └────────────────────────────────────────────────────────────────────┘
@@ -281,6 +281,7 @@ Every run, including the discarded ones and why, is in [`EJECUCIONES.md`](EJECUC
 
 | Document | What's inside (Spanish) |
 |---|---|
+| [`DATA_AND_HYPERPARAMS.md`](DATA_AND_HYPERPARAMS.md) | **(English)** Data funnel (1,300 → 1,186 gold → 1,181 after CuratorKIT dedup → 2,362 ES/EN rows) and every hyperparameter per repo |
 | [`RESULTADOS_FINALES.md`](RESULTADOS_FINALES.md) | Final evaluation: every metric, paired difference and CI, second judge |
 | [`HOLDOUT_V2.md`](HOLDOUT_V2.md) | Provenance, contamination, judges, committee review, freeze |
 | [`ROI.md`](ROI.md) | Closed chain versus Tiny Aya + Lisa: quality, cost, latency, privacy |
