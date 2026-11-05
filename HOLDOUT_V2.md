@@ -56,7 +56,8 @@ Columna `decision_comite` vacía: **ninguna etiqueta se cambia automáticamente*
 
 ## Costos (`registro_openrouter.jsonl`, `registro_openai.jsonl`)
 
-- OpenRouter: **USD 1,93** en total (generación USD 0,05; comparación de jueces USD 0,43; juicios del v2 USD 1,44),
+- OpenRouter: **USD 2,60** en total, sumando el segundo juez de la evaluación final (USD 0,67). Antes:
+  USD 1,93 (generación USD 0,05; comparación de jueces USD 0,43; juicios del v2 USD 1,44),
   verificado contra el uso de la clave. Límite de la clave: USD 20/mes; tope local de los scripts: USD 3.
 - OpenAI: tokens registrados desde los juicios del v2 (`registro_openai.jsonl`); lo anterior no se registró.
 

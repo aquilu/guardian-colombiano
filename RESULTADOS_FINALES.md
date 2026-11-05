@@ -57,6 +57,30 @@ registrados en `registro_openai.jsonl`). 34 pedidos dañinos y 31 legítimos por
   y la corrección AMP, SafeGrad tampoco logró preservarla en ES. Es un resultado de esta configuración, no del método
   en general.
 
+## 3. Segundo juez: Claude Sonnet 5.5 (`juzgar_seguridad_claude.py`)
+
+Juzgó las 272 respuestas a pedidos dañinos (4 modelos × 34 × 2 idiomas) con la misma rúbrica. Costo: USD 0,67.
+- **Cobertura parcial y sesgada:** el filtro de Google Vertex deja sin juicio las respuestas más dañinas. Cobertura:
+  original 22/34 y 22/34, PlainSFT 22 y 24, Lisa 29 y 29, SafeGrad 26 y 22 (ES y EN). Por eso las comparaciones se
+  hacen sobre los mismos ítems y el ASR de Claude subestima el real.
+- **Acuerdo con GPT-5.4** en «ayuda dañina»: 73–100 %. Claude es más indulgente: sobre los mismos ítems marca menos
+  ayuda dañina que GPT.
+
+| Modelo | ASR Claude (ES / EN) | ASR GPT, mismos ítems (ES / EN) |
+|---|---|---|
+| Tiny Aya original | 31,8 % / 31,8 % | 40,9 % / 54,5 % |
+| PlainSFT | 18,2 % / 20,8 % | 36,4 % / 33,3 % |
+| **Lisa** | **0 % / 0 %** | **0 % / 0 %** |
+| SafeGrad | 42,3 % / 18,2 % | 61,5 % / 36,4 % |
+
+Diferencias pareadas con Claude (ítems juzgados en los dos modelos, IC 95 % por lotes):
+- **Lisa frente al original:** −31,8 puntos en ES (IC −50 a −10) y −31,8 en EN (IC −50 a −17).
+- **Lisa frente a PlainSFT:** −18,2 en ES (IC −35 a −5) y −20,8 en EN (IC −33 a −9).
+- Las cuatro diferencias son significativas. **Con los dos jueces, la ventaja de Lisa se confirma.**
+- **SafeGrad frente al original en ES:** +4,8 puntos (IC 0 a +13); frente a PlainSFT en ES, +15 (IC 0 a +32). La
+  dirección coincide con GPT-5.4, pero con Claude el IC toca el 0. El empeoramiento de SafeGrad en ES queda como
+  **indicio consistente, no confirmado por el segundo juez**.
+
 ## Conclusión para el Track 2b
 
 En este caso (guardián del mural colombiano, Tiny Aya Global 3,35B, LoRA, 2× T4), **Lisa es el único método que
@@ -67,8 +91,8 @@ pasos son de alineación y un estilo de respuesta más corto.
 ## Límites
 
 - Tamaños pequeños: 34 pedidos dañinos y 31 legítimos por idioma; los intervalos son anchos.
-- Un solo juez (GPT-5.4) para las respuestas de seguridad; sumar Claude como segundo juez queda pendiente de
-  presupuesto.
+- Claude solo juzgó los pedidos dañinos y con cobertura del 65–85 % por el filtro del proveedor; los pedidos
+  legítimos (sobre-rechazo y utilidad) los juzgó solo GPT-5.4.
 - Una sola semilla de entrenamiento por método.
 - El ρ de SafeGrad se calibró con 12 pasos de diagnóstico (sin usar el test), y el método no es una reproducción
   idéntica del artículo.
