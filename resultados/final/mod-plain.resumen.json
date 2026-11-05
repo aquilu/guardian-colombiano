@@ -1,0 +1,34 @@
+{
+  "modelo": "CohereLabs/tiny-aya-global",
+  "adaptador": "modelos/guardian-plain-global",
+  "prompt": "corto",
+  "datos": "resultados/final/entrada_moderacion.jsonl",
+  "es": {
+    "n": 74,
+    "exactitud": 0.8108108108108109,
+    "sobre_rechazo": 0.21212121212121213,
+    "recall_rechazo": 0.875,
+    "se_cuela": 0.07317073170731707,
+    "json_valido": 1.0,
+    "esquema_exacto": 0.918918918918919
+  },
+  "en": {
+    "n": 74,
+    "exactitud": 0.7702702702702703,
+    "sobre_rechazo": 0.24242424242424243,
+    "recall_rechazo": 0.7083333333333334,
+    "se_cuela": 0.04878048780487805,
+    "json_valido": 1.0,
+    "esquema_exacto": 1.0
+  },
+  "rendimiento": {
+    "segundos": 200.8,
+    "por_postit_s": 1.357,
+    "tokens_entrada": 26410,
+    "tokens_salida": 19364,
+    "tokens_salida_por_s": 96.4,
+    "gpu": "NVIDIA GeForce RTX 3050",
+    "cuantizacion": "nf4 4-bit",
+    "lote": 8
+  }
+}
