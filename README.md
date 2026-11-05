@@ -99,6 +99,8 @@ flowchart LR
 
 ## 🚀 Quickstart
 
+<p align="center"><a href="https://huggingface.co/spaces/aquilu/guardian-colombiano"><img src="docs/img/demo.png" alt="Live demo: a regionally discriminatory note is rejected in 6.9 s on ZeroGPU" width="90%"></a></p>
+
 **Try it:** [huggingface.co/spaces/aquilu/guardian-colombiano](https://huggingface.co/spaces/aquilu/guardian-colombiano).
 It has an ES/EN switch, the mural moderator, and a side-by-side general-safety test of Lisa against the original
 Tiny Aya.

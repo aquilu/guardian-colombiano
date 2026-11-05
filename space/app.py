@@ -107,7 +107,11 @@ def moderar(texto, region, tema, idioma):
         t0, salida = time.time(), ""
         for salida in generar(tok_guardian, msgs):
             yield UI[idioma]["espera"], salida
-        yield tarjeta(salida, idioma) + f"\n\n<sub>{time.time() - t0:.1f} s · ZeroGPU · bf16</sub>", salida
+        try:
+            bonito = json.dumps(json.loads(salida[salida.index("{"): salida.rindex("}") + 1]), indent=2, ensure_ascii=False)
+        except ValueError:
+            bonito = salida
+        yield tarjeta(salida, idioma) + f"\n\n<sub>{time.time() - t0:.1f} s · ZeroGPU · bf16</sub>", bonito
 
 
 @spaces.GPU(duration=90)
