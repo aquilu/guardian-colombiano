@@ -4,7 +4,8 @@
 
 <p align="center">
   <a href="https://huggingface.co/spaces/aquilu/guardian-colombiano"><img alt="Live demo" src="https://img.shields.io/badge/🤗%20demo-live%20on%20ZeroGPU-f2c230?style=for-the-badge"></a>
-  <a href="https://huggingface.co/collections/vasmi-sas/guardian-colombiano-tiny-aya-seguro-6aec689cd4567b9382632800"><img alt="Models and datasets" src="https://img.shields.io/badge/🤗%20models%20%26%20data-vasmi--sas-2a5db0?style=for-the-badge"></a>
+  <a href="https://huggingface.co/collections/vasmi-sas/guardian-colombiano-models-6aec689cd4567b9382632800"><img alt="Models" src="https://img.shields.io/badge/🤗%20models-vasmi--sas-2a5db0?style=for-the-badge"></a>
+  <a href="https://huggingface.co/collections/vasmi-sas/guardian-colombiano-datasets-and-logs-6aec7de27cf401718695e2fb"><img alt="Datasets and logs" src="https://img.shields.io/badge/🤗%20datasets%20%26%20logs-vasmi--sas-39594d?style=for-the-badge"></a>
   <img alt="Lexsi AI Safety Hackathon 2026" src="https://img.shields.io/badge/Lexsi%20Hackathon-Track%202b%20%2B%202a-c8323c?style=for-the-badge">
 </p>
 <p align="center">
@@ -47,10 +48,11 @@ from different model families.
 | 🌎 Same verdict for the ES and EN version | 77.0 | 87.8 | **95.9** | 91.9 | — |
 | 🛡️ Harmful help (ASR), judge GPT-5.4 | 50.0 / 58.8 | 47.1 / 38.2 | **0.0 / 0.0** | 61.8 / 47.1 | — |
 | 🛡️ Harmful help (ASR), judge Claude Sonnet 5.5 | 31.8 / 31.8 | 18.2 / 20.8 | **0.0 / 0.0** | 42.3 / 18.2 | — |
-| 💸 Cost per 1,000 notes | — | ~$0.01 power | **~$0.01 power** | ~$0.01 power | ~$1.02 API |
+| 💸 Cost per 1,000 notes (cloud T4 at $0.50/h, pay-per-use) | — | $0.16 | **$0.16** | $0.16 | $1.02 API |
 
 All differences called significant below have a 95 % CI (cluster bootstrap over generation batches, 10,000
-replicates) that excludes 0. Power cost assumes 150 W and USD 0.22/kWh (see [`ROI.md`](ROI.md)).
+replicates) that excludes 0. GPU cost uses the measured 1.16 s/note; with the library's own GPU it is about $0.01
+of power. Volume scenarios and the 24/7 break-even point (about 359k notes a month) are in [`ROI.md`](ROI.md).
 
 ## ✨ Highlights
 
@@ -223,7 +225,8 @@ Every script documents its flags in its docstring.
   - [AlignTune](https://github.com/Lexsi-Labs/aligntune) @ `c3d648f`: evaluated, then replaced (see findings).
 - **Cohere Labs:** [Tiny Aya Global](https://huggingface.co/CohereLabs/tiny-aya-global), pinned at revision `af89d219`.
 - **Hugging Face:**
-  - [models, datasets and collection](https://huggingface.co/collections/vasmi-sas/guardian-colombiano-tiny-aya-seguro-6aec689cd4567b9382632800);
+  - [models collection](https://huggingface.co/collections/vasmi-sas/guardian-colombiano-models-6aec689cd4567b9382632800): 3 adapters, base model, demo;
+  - [datasets & logs collection](https://huggingface.co/collections/vasmi-sas/guardian-colombiano-datasets-and-logs-6aec7de27cf401718695e2fb): training data, alignment pairs, frozen holdout, logs, traces and evaluation outputs (harmful responses redacted);
   - [ZeroGPU demo](https://huggingface.co/spaces/aquilu/guardian-colombiano).
 - **Teachers and judges:**
   - OpenAI GPT-5.4 and gpt-5.4-mini (also the production baseline);

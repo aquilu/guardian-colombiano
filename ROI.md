@@ -47,3 +47,29 @@ el comité.
 
 **Supuestos:** precio de gpt-5.4-mini de agregadores públicos que citan la lista de OpenAI (confirmar en la página
 oficial); 150 W y USD 0,22/kWh son supuestos, no mediciones.
+
+## Escenarios de volumen con GPU en la nube (lo que pide la regla del hackathon)
+
+**Supuestos medidos:**
+- **Rendimiento de Lisa:** 1,157 s por post-it en lote de 8, con 102,8 tokens/s de salida, nf4 4-bit en una RTX 3050
+  de 6 GB (`resultados/validacion-lisa.resumen.json`). La T4 de la nube se toma como equivalente; es un supuesto, no
+  una medición.
+- **Cadena cerrada:** 702 tokens de entrada y 109 de salida por post-it (medidos), a USD 0,75 y 4,50 por millón ≈
+  USD 0,00102 por post-it.
+- **GPU en la nube:** NVIDIA T4 en Hugging Face Inference Endpoints a USD 0,50/h (AWS; se cobra por minuto).
+
+| Post-its al mes | Cadena cerrada | Horas de GPU | T4 pagada por uso | T4 encendida 24/7 (730 h) | GPU propia (energía) |
+|---|---|---|---|---|---|
+| 10.000 (una red de bibliotecas) | USD 10,17 | 3,2 h | USD 1,61 | USD 365 | USD 0,11 |
+| 100.000 | USD 101,70 | 32,1 h | USD 16,07 | USD 365 | USD 1,06 |
+| 1.000.000 (escala nacional) | USD 1.017 | 321 h | USD 161 | USD 365 | USD 10,61 |
+
+**Cómo leerlo:**
+- **Pagada por uso** (un endpoint que escala a cero y procesa por lotes, por ejemplo la cola de revisión), Lisa cuesta
+  **6,3 veces menos** que la cadena cerrada a cualquier volumen.
+- **Encendida 24/7,** la T4 solo compensa a partir de unos **359.000 post-its al mes**.
+- **Con la GPU que ya tiene la biblioteca,** el costo marginal es solo de energía.
+- **El entrenamiento completo de los tres métodos** costó 2,76 horas de T4 (≈ USD 1,38 a precio de nube; en Kaggle
+  fue gratis).
+- **Precios de referencia:** documentación de precios de Hugging Face Inference Endpoints, revisada el 2026-11-05;
+  confirmar en la página vigente antes de presupuestar.
