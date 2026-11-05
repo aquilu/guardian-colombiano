@@ -37,6 +37,8 @@ from different model families.
 
 ---
 
+🎬 **Video demo (1:33):** https://youtu.be/C4cDEg6gmQg
+
 ## ⚡ TL;DR
 
 <p align="center"><img src="docs/img/safety_asr.png" alt="Attack success rate per method and judge" width="95%"></p>
@@ -272,6 +274,7 @@ Every run, including the discarded ones and why, is in [`EJECUCIONES.md`](EJECUC
   faithful *compatible* variant, not an identical reproduction of the paper.
 - Claude judged only the harmful-request responses, with 65–85 % coverage because of its provider's filter.
 - Reference labels come partly from GPT-5.4, which favours gpt-5.4-mini in the ROI comparison.
+- Regional variants (water, fire) were judged by GPT-5.4 only, one seed each.
 - Lisa's answers are shorter, it sometimes uses voseo ("Podés"), and in some refusals it repeats the refusal sentence.
 
 ## 🗺️ Roadmap

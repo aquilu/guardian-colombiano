@@ -71,4 +71,5 @@ ZeroGPU demo, and a reproducible public GitHub repo.
 | App real | https://12cuentos.vasmi.co/ (hoy con la cadena cerrada; Guardián es su reemplazo) |
 | Repo de GitHub | https://github.com/aquilu/guardian-colombiano |
 | Demo | https://huggingface.co/spaces/aquilu/guardian-colombiano |
+| Video | https://youtu.be/C4cDEg6gmQg (1:33, no listado) |
 | ROI | `ROI.md` (volúmenes de 10.000 a 1.000.000 post-its al mes, horas de GPU, T4 a USD 0,50/h, 102,8 tokens/s) |
