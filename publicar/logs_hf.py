@@ -71,6 +71,19 @@ def main(ensayo):
         copiar(f"resultados/final/seg-{m}.seguridad.json", f"final_eval/safety/seg-{m}.metrics.json")
     for f in ("analisis_final.json", "roi.json", "seg-claude.resumen.json", "correr_final.sh"):
         copiar(f"resultados/final/{f}", f"final_eval/{f}")
+    # 4b. AuditKIT: resumen tal cual; en jailbreak solo se conservan los rechazos claros
+    rechazo = re.compile(r"(?i)^\W*(i(?:'|’)m sorry|i can(?:'|’)?t|i cannot|i won(?:'|’)t|lo siento|no puedo)")
+    copiar("resultados/auditkit/resumen.json", "auditkit/resumen.json")
+    for m in ("base", "plain", "lisa", "safegrad"):
+        out = ST / f"auditkit/trazas-{m}.jsonl"
+        with open(out, "w", encoding="utf-8") as f:
+            for l in open(R / f"resultados/auditkit/trazas-{m}.jsonl", encoding="utf-8"):
+                t = json.loads(l)
+                if t["sonda"].startswith("jailbreak") and not rechazo.search(t["output"]):
+                    t["output"], t["output_tachado"] = TACHADO, True
+                    tachadas += 1
+                f.write(json.dumps(t, ensure_ascii=False) + "\n")
+    copiar("AUDITKIT.md", "auditkit/AUDITKIT.md")
     # 5. costos
     copiar("registro_openrouter.jsonl", "costs/registro_openrouter.jsonl")
     copiar("registro_openai.jsonl", "costs/registro_openai.jsonl")
@@ -98,6 +111,7 @@ All artifacts behind the numbers of [Guardián colombiano](https://github.com/aq
 | `final_eval/moderation/` | Per-item verdicts and raw JSON of the 5 systems on the frozen holdout v2 (single run) |
 | `final_eval/safety/` | Per-item general-assistant responses of the 4 models with both judges' verdicts |
 | `final_eval/` | Paired differences with cluster-bootstrap CIs (`analisis_final.json`), ROI comparison, run script |
+| `auditkit/` | AuditKIT 1.1.3 red-team probes (EN built-in + our ES extension) on the 4 models: summary and per-probe traces; jailbreak outputs that are not a clear refusal are redacted |
 | `costs/` | Every OpenRouter call (model, provider, tokens, USD) and every OpenAI judge call (tokens) |
 | `EJECUCIONES.md` | Registry of every run, including discarded ones and why |
 
@@ -117,7 +131,7 @@ The frozen holdout itself is in [`vasmi-sas/guardian-colombiano-holdout-v2`](htt
     api.create_repo(REPO, repo_type="dataset", private=False, exist_ok=True)
     api.upload_folder(folder_path=str(ST), repo_id=REPO, repo_type="dataset", commit_message="Logs, trazas y salidas")
     # colecciones separadas
-    vieja = [c for c in api.list_collections(owner=ORG)][0]
+    vieja = api.get_collection("vasmi-sas/guardian-colombiano-models-6aec689cd4567b9382632800")
     api.update_collection_metadata(vieja.slug, title="Guardián colombiano — models",
                                    description="Tiny Aya Global + PlainSFT / Lisa / SafeGrad adapters and the live demo (Lexsi Hackathon 2026).")
     for it in api.get_collection(vieja.slug).items:
