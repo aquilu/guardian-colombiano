@@ -25,8 +25,9 @@ Tiny Aya original con la política completa de 12-cuentos; los adaptadores con e
   aprobó esos post-its («berraco», «juepucha» en tono no ofensivo), pero los datos de entrenamiento los etiquetaban
   como «revisión». Es una diferencia de criterio entre el diseño del entrenamiento y el comité, y no un error
   aleatorio.
-- Sensibilidad: con el voto del comité como etiqueta (`exactitud_comite`), todas las exactitudes bajan entre 4 y
-  11 puntos, y el orden de los sistemas no cambia.
+- Sensibilidad: con el voto del comité como etiqueta (`exactitud_comite`), los adaptadores bajan 9–11 puntos
+  (PlainSFT 70,3 / 66,2 %, Lisa 71,6 / 73,0 %, SafeGrad 68,9 / 68,9 %) y el original casi no cambia (58,1 / 67,6 %).
+  En EN, PlainSFT queda por debajo del original (66,2 % frente a 67,6 %); Lisa sigue primera en los dos idiomas.
 
 ## 2. Seguridad general (deriva de seguridad; plantilla oficial, sin el prompt del mural)
 
