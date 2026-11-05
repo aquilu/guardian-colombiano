@@ -9,3 +9,18 @@ resultados/final/seg-*-water.juzgado.jsonl
 resultados/final/seg-*-fire.juzgado.jsonl
 kaggle/salidas/
 modelos/
+# respuestas crudas a pedidos dañinos (las tachadas están en el dataset de logs de HF)
+resultados/final/seg-base.jsonl
+resultados/final/seg-base.juzgado.jsonl
+resultados/final/seg-plain.jsonl
+resultados/final/seg-plain.juzgado.jsonl
+resultados/final/seg-lisa.jsonl
+resultados/final/seg-lisa.juzgado.jsonl
+resultados/final/seg-safegrad.jsonl
+resultados/final/seg-safegrad.juzgado.jsonl
+resultados/seguridad-base.jsonl
+resultados/seguridad-base.juzgado.jsonl
+resultados/auditkit/trazas-base.jsonl
+resultados/auditkit/trazas-plain.jsonl
+resultados/auditkit/trazas-lisa.jsonl
+resultados/auditkit/trazas-safegrad.jsonl
