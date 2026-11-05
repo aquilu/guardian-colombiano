@@ -125,27 +125,30 @@ retraining, and the holdout cannot be reused to evaluate that, so it is future w
 repeats the refusal sentence. We checked responses by hand: it refuses briefly, gives Colombia's emergency line (123),
 offers alternatives, and still answers benign "scary-word" requests.
 
-## 5. Engineering findings (to be reported to the tool authors)
+## 5. Engineering findings (reported upstream)
 
 These cost us real runs. Each one was caught by an instrumented short test before a full run:
 
-1. **SafeGrad + fp16 AMP scale bug (SafeTune).**
-   - **Bug:** `.grad` is multiplied by the GradScaler factor (65,536), but the alignment gradient is not. After
-     unscaling, the alignment term was only 1.2–9.3 % of what was intended.
-   - **Fix (`corregir_amp`):** the projection is homogeneous of degree 1 in the task gradient and degree 0 in the
-     alignment gradient, so passing `s·g_align` gives exactly `g'_user + ρ·g_align` after a single unscale.
+1. **SafeGrad under fp16 AMP divides the alignment term by the loss scale.** Reported as
+   [SafeTune#37](https://github.com/Lexsi-Labs/SafeTune/issues/37).
+   - **Bug:** `.grad` holds `s·g_user` (GradScaler, s = 65,536), but `g_align` is unscaled. After the Trainer
+     unscales, the update is `g'_user + (ρ/s)·g_align`.
+   - **Fix (`corregir_amp`):** the projection is homogeneous of degree 1 in `g_user` and degree 0 in `g_align`, so
+     passing `s·g_align` gives exactly `g'_user + ρ·g_align` after a single unscale.
    - **Check:** we measured a homogeneity error of 0.
-2. **SafeTune assumes right padding.** `_tokenize_qa_rows` masks the first `prompt_len` positions. With a
-   left-padding tokenizer, which is the Kaggle default for Tiny Aya, it supervises padding and masks the answer. We
-   added a token-level label check (`tokenizar_verificado`).
-3. **Kaggle's Tiny Aya tokenizer differs from HF.** It declares `CohereTokenizerFast`, segments differently, and
-   ships `max_position_embeddings=500000`. We pin the HF tokenizer and config at revision `af89d219` and check token
-   IDs on every run.
-4. **`build_safety_dataset` supervises the prompt.** We rebuilt the alignment set through `tokenize_dataset`, and
-   excluded and logged the 3 rows that would be truncated.
-5. **AlignTune flattens chat messages** and drops the system prompt and template. We moved to SafeTune.
-6. **CuratorKIT:** `strip_html` alters legitimate text, and `dedup_stats` is inconsistent. We disabled the first and
-   audited the second.
+2. **`build_safety_dataset` supervises the prompt**, that is the harmful request and the template, not only the
+   refusal. Reported as [SafeTune#38](https://github.com/Lexsi-Labs/SafeTune/issues/38). We rebuilt the alignment set
+   with the same masking as the task data, and excluded and logged the 3 rows that would be truncated.
+3. **`_tokenize_qa_rows` assumes right padding.** With a left-padding tokenizer, which is the Kaggle copy of Tiny Aya,
+   it supervises part of the prompt. Reported as [SafeTune#39](https://github.com/Lexsi-Labs/SafeTune/issues/39). We
+   force right padding and check labels at the token level (`tokenizar_verificado`).
+4. **AlignTune SFT flattens `messages` to `Human:/Assistant:`**, dropping the system turn and the chat template.
+   Reported as [aligntune#54](https://github.com/Lexsi-Labs/aligntune/issues/54). We moved training to SafeTune.
+5. **CuratorKIT `strip_html` is on by default** and silently removes tag-based prompt injections from safety data.
+   Reported as [CuratorKIT#42](https://github.com/Lexsi-Labs/CuratorKIT/issues/42). We disabled it.
+6. **Kaggle's Tiny Aya tokenizer differs from HF.** It declares `CohereTokenizerFast`, segments differently, pads on
+   the left, and ships `max_position_embeddings=500000`. We pin the HF tokenizer and config at revision `af89d219` and
+   check token IDs on every run.
 
 Every run is logged, including the ones we discarded and why: [`EJECUCIONES.md`](EJECUCIONES.md).
 
@@ -180,5 +183,5 @@ USD 2.60 on OpenRouter.
 uses.
 
 ---
-Built by Hugo Alonso (Vasmi SAS) with Claude Code. Base model:
+Code: MIT. Models and data: CC-BY-NC 4.0 (inherited from Tiny Aya). Built by Hugo Alonso (Vasmi SAS) with Claude Code. Base model:
 [CohereLabs/tiny-aya-global](https://huggingface.co/CohereLabs/tiny-aya-global).
