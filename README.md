@@ -264,6 +264,8 @@ Each of these was caught by an instrumented short test before it could ruin a fu
 | 5 | CuratorKIT `strip_html` (on by default) silently strips tag-based prompt injections from safety data | [CuratorKIT#42](https://github.com/Lexsi-Labs/CuratorKIT/issues/42) |
 | 6 | Kaggle's Tiny Aya copy ships a different tokenizer (left padding, other segmentation) and `max_position_embeddings=500000` | pinned HF tokenizer + token-ID check |
 
+**Status (Nov 9, 2026):** Lexsi has merged the fixes for SafeTune#37–39 in [PR #50](https://github.com/Lexsi-Labs/SafeTune/pull/50) (released in 0.1.13), and CuratorKIT#42 is addressed in [#41](https://github.com/Lexsi-Labs/CuratorKIT/pull/41), released in 0.1.23.
+
 Every run, including the discarded ones and why, is in [`EJECUCIONES.md`](EJECUCIONES.md).
 
 ## ⚠️ Limitations
